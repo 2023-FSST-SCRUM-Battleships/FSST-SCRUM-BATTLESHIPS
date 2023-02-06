@@ -21,6 +21,7 @@
 |---:|:---:|:---|
 |type|defines type of packet| string |
 | data | the transmitted data | JSON-serializable data |
+
 example:
 ```
 {
