@@ -16,6 +16,7 @@
 ## Networking
 
 - JSON strings via sockets:
+
 | FieldName | Description | type |
 |---:|:---:|:---|
 |type|defines type of packet| string |
