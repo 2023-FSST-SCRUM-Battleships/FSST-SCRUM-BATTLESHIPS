@@ -1,11 +1,5 @@
-- Client
-- Server
-- Networking
-- DB-Connection
+# Getting started with Battleships
 
-<<<<<<< Updated upstream
-## Client
-=======
 [Jira](https://aetherialkilix.atlassian.net/) is an implementation of Scrum.
 We use a `BS-{random-id}`-tag to connect Jira with Github-Repositories & Github-Commits.
 
@@ -66,35 +60,36 @@ We use a `BS-{random-id}`-tag to connect Jira with Github-Repositories & Github-
 ## Details
 
 ### Client
->>>>>>> Stashed changes
 
 - GUI (PyQT6)
 - Sends Ship placements to server
 
-## Server
+### Server
 
 - Receives Ship placement from client
 - Handles shots & win checks
 
-## Networking
+### Networking
 
 - JSON strings via sockets:
 
-| FieldName | Description | type |
-|---:|:---:|:---|
-|type|defines type of packet| string |
-| data | the transmitted data | JSON-serializable data |
+| FieldName |      Description       | type                   |
+| --------: | :--------------------: | :--------------------- |
+|      type | defines type of packet | string                 |
+|      data |  the transmitted data  | JSON-serializable data |
 
 example:
+
 ```
 {
 	"type" : "ship_placement",
 	"data": {<actual data>}
 }
 ```
+
 example for some data:
-``[{rotation:0 (x90°), origin:[3, 3]}, {rotation: 1, origin: [6, 8]}]``
+`[{rotation:0 (x90°), origin:[3, 3]}, {rotation: 1, origin: [6, 8]}]`
 
-## DB-Connection
+### DB-Connection
 
-- ORM 
+- ORM
