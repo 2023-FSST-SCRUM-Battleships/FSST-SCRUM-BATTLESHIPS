@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication
 
-from comps.gui import MainWindow, ButtonGridLayout
+from comps.gui import MainWindow, PlayerGridLayout
 
 
 def gui_window_handler():
