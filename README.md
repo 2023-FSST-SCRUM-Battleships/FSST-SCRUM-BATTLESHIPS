@@ -1,6 +1,6 @@
 # Getting started with Battleships
 
-[Jira](https://aetherialkilix.atlassian.net/) is an implementation of Scrum.
+[Jira](https://atlassian.net/) is an implementation of Scrum.
 We use a `BS-{random-id}`-tag to connect Jira with Github-Repositories & Github-Commits.
 
 ## Week 1
