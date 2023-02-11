@@ -1,13 +1,13 @@
 # Getting started with Battleships
 
-[Jira](https://aetherialkilix.atlassian.net/) is an implementation of Scrum.
+[Jira](https://atlassian.net/) is an implementation of Scrum.
 We use a `BS-{random-id}`-tag to connect Jira with Github-Repositories & Github-Commits.
 
 ## Week 1
 
 - [ ] <font size="4">`BS-3`</font>: fundamental GUI
 
-- [ ] <font size="4">`BS-4`</font>: fundamental networkcommunication - client
+- [ ] <font size="4">`BS-4`</font>: fundamental network-communication - client
 
 - [ ] <font size="4">`BS-9`</font>: place ships on field
 
@@ -25,9 +25,9 @@ We use a `BS-{random-id}`-tag to connect Jira with Github-Repositories & Github-
 
 - [ ] <font size="4">`BS-17`</font>: set up automatic deployment
 
-- [ ] <font size="4">`BS-18`</font>: fundamental networkcommunication - server
+- [ ] <font size="4">`BS-18`</font>: fundamental network-communication - server
 
-- [ ] <font size="4">`BS-18`</font>: fundamental networkcommunication - server
+- [ ] <font size="4">`BS-18`</font>: fundamental network-communication - server
 
 - [ ] <font size="4">`BS-19`</font>: ships fleet manager (layout)
 
