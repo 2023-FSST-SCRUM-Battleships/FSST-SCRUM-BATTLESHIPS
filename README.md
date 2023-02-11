@@ -5,7 +5,7 @@ We use a `BS-{random-id}`-tag to connect Jira with Github-Repositories & Github-
 
 ## Week 1
 
-- [ ] <font size="4">`BS-3`</font>: fundamental GUI
+- [X] <font size="4">`BS-3`</font>: fundamental GUI
 
 - [ ] <font size="4">`BS-4`</font>: fundamental network-communication - client
 
