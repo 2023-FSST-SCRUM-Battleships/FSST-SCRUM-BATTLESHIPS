@@ -8,7 +8,7 @@ To install the requirements, type in your commandline `pip install -r requiremen
 
 - [x] <font size="4">`BS-3`</font>: fundamental GUI
 
-- [ ] <font size="4">`BS-4`</font>: fundamental network-communication - client
+- [x] <font size="4">`BS-4`</font>: fundamental network-communication - client
 
 - [ ] <font size="4">`BS-9`</font>: place ships on field
 
