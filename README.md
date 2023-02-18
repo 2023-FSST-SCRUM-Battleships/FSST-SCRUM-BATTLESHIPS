@@ -2,12 +2,13 @@
 
 [Jira](https://atlassian.net/) is an implementation of Scrum.
 We use a `BS-{random-id}`-tag to connect Jira with Github-Repositories & Github-Commits.
+To install the requirements, type in your commandline `pip install -r requirements.txt`.
 
 ## Week 1
 
-- [X] <font size="4">`BS-3`</font>: fundamental GUI
+- [x] <font size="4">`BS-3`</font>: fundamental GUI
 
-- [ ] <font size="4">`BS-4`</font>: fundamental network-communication - client
+- [x] <font size="4">`BS-4`</font>: fundamental network-communication - client
 
 - [ ] <font size="4">`BS-9`</font>: place ships on field
 

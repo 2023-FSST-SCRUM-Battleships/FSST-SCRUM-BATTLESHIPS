@@ -1,7 +1,9 @@
 import sys
 from PyQt6.QtWidgets import QApplication
 
-from comps.gui import MainWindow, PlayerGridLayout
+from comps.gui import MainWindow
+from network.common import encode_packet, decode_packet
+from src.network.client import Client
 
 
 def gui_window_handler():
@@ -18,7 +20,8 @@ def gui_window_handler():
 
 
 def main():
-    gui_window_handler()
+    # gui_window_handler()
+    print(Client().connect())
 
 
 if __name__ == '__main__':
