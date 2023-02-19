@@ -20,9 +20,12 @@ def gui_window_handler():
 
 
 def main():
-    # gui_window_handler()
-    print(Client().connect())
+    gui_window_handler()
+    # print(Client().connect())
 
 
 if __name__ == '__main__':
     main()
+
+
+# TEST
