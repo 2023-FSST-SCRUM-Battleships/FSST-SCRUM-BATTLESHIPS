@@ -1,9 +1,9 @@
 from PyQt6.QtGui import QPalette, QColor
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel
 
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 400
-FIELD_SIZE = 5
+WINDOW_WIDTH = 1600
+WINDOW_HEIGHT = 800
+FIELD_SIZE = 12
 
 
 class MainWindow(QMainWindow):
@@ -59,7 +59,7 @@ class GameLayout(QVBoxLayout):
         self.parent.layout.addLayout(self.layout)
 
 
-class PlayerGridLayout(QGridLayout):
+class PlayerGridLayout(QGridLayout):2
     def __init__(self, parent: GameLayout):
         super().__init__()
         self.parent: GameLayout = parent
