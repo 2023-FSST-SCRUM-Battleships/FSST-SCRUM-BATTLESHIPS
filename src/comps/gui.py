@@ -1,8 +1,8 @@
 from PyQt6.QtGui import QPalette, QColor
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel
 
-WINDOW_WIDTH = 1600
-WINDOW_HEIGHT = 800
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 400
 FIELD_SIZE = 12
 
 
@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
 
     def ui(self):
         self.setWindowTitle("Titanic who-ooo")
-        self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        # self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
         self.setContentsMargins(20, 20, 20, 20)
 
     def run(self):
@@ -59,7 +59,7 @@ class GameLayout(QVBoxLayout):
         self.parent.layout.addLayout(self.layout)
 
 
-class PlayerGridLayout(QGridLayout):2
+class PlayerGridLayout(QGridLayout):
     def __init__(self, parent: GameLayout):
         super().__init__()
         self.parent: GameLayout = parent
@@ -74,7 +74,8 @@ class PlayerGridLayout(QGridLayout):2
 
         for i in range(FIELD_SIZE):
             for j in range(FIELD_SIZE):
-                button = QPushButton(f"{i, j}")
+                # button = QPushButton(f"{i, j}")
+                button = QPushButton()
                 self.buttons.append([i, j, button])
                 self.layout.addWidget(button, i, j)
 
@@ -96,7 +97,8 @@ class EnemyGridLayout(QGridLayout):
 
         for i in range(FIELD_SIZE):
             for j in range(FIELD_SIZE):
-                button = QPushButton(f"{i, j}")
+                # button = QPushButton(f"{i, j}")
+                button = QPushButton()
                 self.buttons.append([i, j, button])
                 self.layout.addWidget(button, i, j)
 

@@ -10,13 +10,13 @@ To install the requirements, type in your commandline `pip install -r requiremen
 
 - [x] <font size="4">`BS-4`</font>: fundamental network-communication - client
 
-- [ ] <font size="4">`BS-9`</font>: place ships on field
+- [x] <font size="4">`BS-9`</font>: place ships on
 
-- [ ] <font size="4">`BS-10`</font>: rotate ships
+- [x] <font size="4">`BS-10`</font>: rotate ships
 
-- [ ] <font size="4">`BS-11`</font>: collision detection for ships
+- [x] <font size="4">`BS-11`</font>: collision detection for ships
 
-- [ ] <font size="4">`BS-16`</font>: set up database
+- [x] <font size="4">`BS-16`</font>: set up database
 
 ## Week 2
 
