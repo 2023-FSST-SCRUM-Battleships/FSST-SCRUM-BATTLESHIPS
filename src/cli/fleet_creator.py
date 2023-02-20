@@ -18,12 +18,11 @@ ship_types = [
 ]
 
 rotation_map = [
-    lambda x, y: ( x,  y),
-    lambda x, y: ( y,  x),
+    lambda x, y: (x, y),
+    lambda x, y: (y, x),
     lambda x, y: (-x, -y),
     lambda x, y: (-y, -x),
 ]
-
 
 ship_count = 6
 
@@ -95,7 +94,7 @@ def check_cell(ship_type, x, y, rotation):
         return False
 
 
-def main():
+def fleet_creator():
     try:
         ship_type = ship_input()
         while not check_ship(ship_type):
@@ -113,4 +112,4 @@ def main():
 
 
 while ship_count > 0:
-    main()
+    fleet_creator()
