@@ -9,7 +9,7 @@ from src.cli.fleet_creator import fleet_creator
 # from src.network.client import Client
 
 
-def gui_window_handler():
+def gui_window_handler() -> None:
     app = QApplication(sys.argv)
 
     main_window = MainWindow()

@@ -27,11 +27,11 @@ rotation_map = [
 ship_count = 6
 
 
-def create_board(size):
+def create_board(size) -> list:
     return [[" " for x in range(size)] for y in range(size)]
 
 
-def print_board(board: list[list]):
+def print_board(board: list[list]) -> None:
     print("  | 01| 02| 03| 04| 05| 06| 07| 08| 09| 10| 11| 12|")
     print("--+---+---+---+---+---+---+---+---+---+---+---+---+")
 
@@ -47,28 +47,28 @@ board = create_board(12)
 print_board(board)
 
 
-def ship_input():
+def ship_input() -> dict:
     input_ship = int(input("Which ship would you like to place?"))
     # gets the dictionary from the ship_types list based on the type of ship
     ship_type = ship_types[input_ship]
     return ship_type
 
 
-def coord_input():
+def coord_input() -> [int, int, int]:
     input_cell = input("Where would you like to place the ship? ")
     x, y, rotation = (int(bit) for bit in input_cell.split(" "))
     x, y = x - 1, y - 1
     return x, y, rotation
 
 
-def place_ship(ship_type, x, y, rotation):
+def place_ship(ship_type: dict, x: int, y: int, rotation: int) -> None:
     for coord in ship_type["form"]:
-        relX, relY = (i for i in coord)
-        relX, relY = rotation_map[rotation](relX, relY)
-        board[y + relY][x + relX] = ship_type["ship"]
+        relative_x, relative_y = (i for i in coord)
+        relative_x, relative_y = rotation_map[rotation](relative_x, relative_y)
+        board[y + relative_y][x + relative_x] = ship_type["ship"]
 
 
-def check_ship(ship_type):
+def check_ship(ship_type: dict) -> bool:
     # checks if there is any ship left
     if ship_type["count"] > 0:
         ship_type["count"] -= 1
@@ -78,13 +78,13 @@ def check_ship(ship_type):
         return False
 
 
-def check_cell(ship_type, x, y, rotation):
+def check_cell(ship_type: dict, x: int, y: int, rotation: int) -> bool:
     global board
     count = 0
     for coord in ship_type["form"]:
-        relX, relY = (i for i in coord)
-        relX, relY = rotation_map[rotation](relX, relY)
-        if board[y + relY][x + relX] == ' ':
+        relative_x, relative_y = (i for i in coord)
+        relative_x, relative_y = rotation_map[rotation](relative_x, relative_y)
+        if board[y + relative_y][x + relative_x] == ' ':
             count += 1
     # if all cells are free return True
     if count == len(ship_type["form"]):
@@ -94,7 +94,7 @@ def check_cell(ship_type, x, y, rotation):
         return False
 
 
-def fleet_creator():
+def fleet_creator() -> None:
     try:
         ship_type = ship_input()
         while not check_ship(ship_type):
