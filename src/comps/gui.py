@@ -68,8 +68,8 @@ class GameLayout(QVBoxLayout):
 
 # hardcoded for testing "Ship"
 ship_uuid: int = 0
-ship_form: list[list[int, int]] = [[0, 0], [0, 1], [0, 2]]
-ship_coordinates: list[int, int, int] = [5, 5, 0]
+ship_form: list[list[int, int]] = [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]
+ship_coordinates: list[int, int, int] = [5, 5, 1]
 
 
 class PlayerGridLayout(QGridLayout):

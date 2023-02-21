@@ -6,7 +6,7 @@ ship_types = [
         "count": 1
     },
     {
-        "ship_id": 1,
+        "ship": 1,
         "form": [[0, 0], [1, 0], [2, 0]],
         "count": 2
     },
