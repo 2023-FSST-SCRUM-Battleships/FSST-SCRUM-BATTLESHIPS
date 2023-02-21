@@ -5,7 +5,7 @@ class JSON:
     """
     import Python-commands as JSON Javascript-commands
     """
-    
+
     from json import dumps as stringify
     from json import loads as parse
 
@@ -28,5 +28,5 @@ def decode_packet(data: str) -> tuple:
     :return:
     """
 
-    temp = JSON.parse(data)
+    temp: dict = JSON.parse(data)
     return temp["_type"], temp["data"]

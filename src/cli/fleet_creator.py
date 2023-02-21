@@ -6,7 +6,7 @@ ship_types = [
         "count": 1
     },
     {
-        "ship": 1,
+        "ship_id": 1,
         "form": [[0, 0], [1, 0], [2, 0]],
         "count": 2
     },
@@ -31,14 +31,14 @@ def create_board(size) -> list:
     return [[" " for x in range(size)] for y in range(size)]
 
 
-def print_board(board: list[list]) -> None:
+def print_board(raw_board: list[list]) -> None:
     print("  | 01| 02| 03| 04| 05| 06| 07| 08| 09| 10| 11| 12|")
     print("--+---+---+---+---+---+---+---+---+---+---+---+---+")
 
-    for y in range(len(board)):
+    for y in range(len(raw_board)):
         accu = f"{y + 1:02}"
-        for x in range(len(board[y])):
-            accu += f"| {board[y][x]} "
+        for x in range(len(raw_board[y])):
+            accu += f"| {raw_board[y][x]} "
         print(accu + "|")
         print("--+---+---+---+---+---+---+---+---+---+---+---+---+")
 
@@ -66,6 +66,7 @@ def place_ship(ship_type: dict, x: int, y: int, rotation: int) -> None:
         relative_x, relative_y = (i for i in coord)
         relative_x, relative_y = rotation_map[rotation](relative_x, relative_y)
         board[y + relative_y][x + relative_x] = ship_type["ship"]
+        print(ship_type["ship"])
 
 
 def check_ship(ship_type: dict) -> bool:
@@ -74,7 +75,7 @@ def check_ship(ship_type: dict) -> bool:
         ship_type["count"] -= 1
         return True
     else:
-        print("You already used all ships od this type!")
+        print("You already used all ships or this ship-type!")
         return False
 
 
@@ -95,10 +96,12 @@ def check_cell(ship_type: dict, x: int, y: int, rotation: int) -> bool:
 
 
 def fleet_creator() -> None:
+    [print(ele) for ele in board]
+
     try:
-        ship_type = ship_input()
+        ship_type: dict = ship_input()
         while not check_ship(ship_type):
-            ship_type = ship_input()
+            ship_type: dict = ship_input()
 
         global ship_count
         ship_count -= 1
