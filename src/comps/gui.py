@@ -71,6 +71,14 @@ ship_uuid: int = 0
 ship_form: list[list[int, int]] = [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]
 ship_coordinates: list[int, int, int] = [5, 5, 1]
 
+ships: list[list[int, list[list[int, int]], list[int, int, int]]] = \
+    [
+        [0, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]], [5, 5, 1]],
+        [1, [[0, 0], [0, 1], [0, 2]], [2, 2, 0]],
+        [2, [[0, 0], [1, 0]], [9, 10, 2]],
+        [3, [[0, 0]], [7, 0, 3]]
+    ]
+
 
 class PlayerGridLayout(QGridLayout):
     def __init__(self, parent: GameLayout):
@@ -80,11 +88,17 @@ class PlayerGridLayout(QGridLayout):
         self.layout = QGridLayout()
 
         # children
-        self.ship = Ship(self, ship_uuid, ship_form, ship_coordinates)
+        self.ship_1 = Ship(self, ship_uuid, ship_form, ship_coordinates)
+        self.ship_2 = Ship(self, ships[1][0], ships[1][1], ships[1][2])
+        self.ship_3 = Ship(self, ships[2][0], ships[2][1], ships[2][2])
+        self.ship_4 = Ship(self, ships[3][0], ships[3][1], ships[3][2])
 
     def run(self):
         self.render_button_layout()
-        self.ship.run()
+        self.ship_1.run()
+        self.ship_2.run()
+        self.ship_3.run()
+        self.ship_4.run()
 
     def render_button_layout(self):
         self.layout.setSpacing(1)
@@ -103,18 +117,20 @@ class PlayerGridLayout(QGridLayout):
 
 
 class Ship:
-    def __init__(self, parent: PlayerGridLayout, uuid: int, form: list[list[int, int]],
-                 root_coordinate: list[int, int, int]):
+    def __init__(self, parent: PlayerGridLayout, uuid: int, form: list[list[int, int]], coordinates: list[int, int,
+                                                                                                          int]):
         super().__init__()
         self.parent: PlayerGridLayout = parent
 
+        # self.ships: list[list[int, list[list[int, int]], list[int, int, int]]] = ships
         self.uuid: int = uuid
         self.form: list[list[int, int]] = form
-        self.root_coordinate: list[int, int, int] = root_coordinate
+        self.root_coordinate: list[int, int, int] = coordinates
         self.coordinates: list[list[int]] = []
 
     def run(self):
         # print(f"root-coordinates: {self.root_coordinate}")
+
         self.get_coordinates_with_rotation()
         self.place_ship()
 
@@ -127,11 +143,12 @@ class Ship:
         # print(f"coordinates: {self.coordinates}")
 
     def place_ship(self):
-        # [print(ele[0]) for ele in self.parent.buttons]
+        # var = [[[[element[1].setStyleSheet("background-color: red"), print("hello")] if element[0] == ele else ""]
+        #         for ele in self.coordinates] for element in self.parent.buttons]
+
         for element in self.parent.buttons:
             for ele in self.coordinates:
                 if element[0] == ele:
-                    # print(element[0], ele)
                     element[1].setStyleSheet("background-color: red")
 
 
@@ -171,7 +188,7 @@ class StatsLayout(QVBoxLayout):
         self.parent.layout.addLayout(self.layout)
 
 
-# todo: later = class Color is needed to display if a shot was correct or incorrect (red / gray)
+# todo: maybe we don't need this one => gonna use pictures instead
 class Color(QWidget):
     def __init__(self, color):
         super(Color, self).__init__()
