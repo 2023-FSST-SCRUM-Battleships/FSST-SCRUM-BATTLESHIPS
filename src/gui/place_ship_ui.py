@@ -1,9 +1,9 @@
 from PyQt6.QtGui import QPalette, QColor
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel
 
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 400
-FIELD_SIZE = 12
+WINDOW_WIDTH: int = 800
+WINDOW_HEIGHT: int = 400
+FIELD_SIZE: int = 12
 
 ROTATION_MAP = [
     lambda x, y: (x, y),
@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
 
         # children
         self.game_layout = GameLayout(self)
-        self.stats_layout = StatsLayout(self)
+        self.place_ship_ui = PlaceShipUI(self)
 
     def ui(self):
         self.setWindowTitle("Titanic who-ooo")
@@ -29,7 +29,6 @@ class MainWindow(QMainWindow):
 
     def run(self):
         self.ui()
-
         self.run_layouts()
 
         main_widget = QWidget()
@@ -38,7 +37,7 @@ class MainWindow(QMainWindow):
 
     def run_layouts(self):
         self.game_layout.run()
-        self.stats_layout.run()
+        self.place_ship_ui.run()
 
 
 class GameLayout(QVBoxLayout):
@@ -49,7 +48,6 @@ class GameLayout(QVBoxLayout):
 
         # children
         self.player_buttons_grid_layout = PlayerGridLayout(self)
-        self.enemy_buttons_grid_layout = EnemyGridLayout(self)
 
     def run(self):
         label = QLabel("Game Field")
@@ -59,20 +57,17 @@ class GameLayout(QVBoxLayout):
         self.layout.addWidget(label)
         self.player_buttons_grid_layout.run()
 
-        label = QLabel("Enemy")
-        self.layout.addWidget(label)
-        self.enemy_buttons_grid_layout.run()
-
         self.parent.layout.addLayout(self.layout)
 
 
 # hardcoded for testing "Ship"
 ship_uuid: int = 0
-ship_form: list[list[int, int]] = [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]
+ship_form: list[[int, int]] = [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]
 ship_coordinates: list[int, int, int] = [5, 5, 1]
 
-ships: list[list[int, list[list[int, int]], list[int, int, int]]] = \
+ships: list[[int, [[int, int]], [int, int, int]]] = \
     [
+        # uuid, layout, root-coordinate
         [0, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]], [5, 5, 1]],
         [1, [[0, 0], [0, 1], [0, 2]], [2, 2, 0]],
         [2, [[0, 0], [1, 0]], [9, 10, 2]],
@@ -117,16 +112,16 @@ class PlayerGridLayout(QGridLayout):
 
 
 class Ship:
-    def __init__(self, parent: PlayerGridLayout, uuid: int, form: list[list[int, int]], coordinates: list[int, int,
-                                                                                                          int]):
+    def __init__(self, parent: PlayerGridLayout, uuid: int, form: list[[int, int]], coordinates: list[int, int,
+                                                                                                      int]):
         super().__init__()
         self.parent: PlayerGridLayout = parent
 
         # self.ships: list[list[int, list[list[int, int]], list[int, int, int]]] = ships
         self.uuid: int = uuid
-        self.form: list[list[int, int]] = form
+        self.form: list[[int, int]] = form
         self.root_coordinate: list[int, int, int] = coordinates
-        self.coordinates: list[list[int]] = []
+        self.coordinates: list[[int]] = []
 
     def run(self):
         # print(f"root-coordinates: {self.root_coordinate}")
@@ -140,50 +135,107 @@ class Ship:
             relative_x, relative_y = ROTATION_MAP[self.root_coordinate[2]](relative_x, relative_y)
             self.coordinates.append([self.root_coordinate[1] + relative_y, self.root_coordinate[0] + relative_x])
 
-        # print(f"coordinates: {self.coordinates}")
+        # print(f"coordinates: {self.coordinates[0]}")
 
     def place_ship(self):
-        # var = [[[[element[1].setStyleSheet("background-color: red"), print("hello")] if element[0] == ele else ""]
-        #         for ele in self.coordinates] for element in self.parent.buttons]
-
         for element in self.parent.buttons:
             for ele in self.coordinates:
                 if element[0] == ele:
-                    element[1].setStyleSheet("background-color: red")
+                    if element[0] == self.coordinates[0]:
+                        element[1].setStyleSheet("background-color: blue")
+                    else:
+                        element[1].setStyleSheet("background-color: red")
 
 
-class EnemyGridLayout(QGridLayout):
-    def __init__(self, parent: GameLayout):
-        super().__init__()
-        self.parent: GameLayout = parent
-        self.buttons: list[list[int, int, object]] = []
-        self.layout = QGridLayout()
-
-    def run(self):
-        self.render_button_layout()
-
-    def render_button_layout(self):
-        self.layout.setSpacing(1)
-
-        for i in range(FIELD_SIZE):
-            for j in range(FIELD_SIZE):
-                # button = QPushButton(f"{i, j}")
-                button = QPushButton()
-                self.buttons.append([i, j, button])
-                self.layout.addWidget(button, i, j)
-
-        self.parent.layout.addLayout(self.layout)
+SHIP_BUTTONS: list[str] = [
+    "ship before",
+    "rotate left",
+    "rotate right",
+    "ship next",
+]
 
 
-class StatsLayout(QVBoxLayout):
+class PlaceShipUI(QVBoxLayout):
     def __init__(self, parent: MainWindow):
         super().__init__()
         self.parent: MainWindow = parent
         self.layout = QVBoxLayout()
 
+        # children
+        self.display_ship_settings = DisplayShipSettings(self, [0, [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]])
+        # DisplayShipSettings hardcoded for testing
+
     def run(self):
-        label = QLabel("Player-Stats")
+        label = QLabel("Ship Preview")
         self.layout.addWidget(label)
+
+        self.display_ship_settings.run()
+
+        self.parent.layout.addLayout(self.layout)
+
+
+class DisplayShipSettings(QVBoxLayout):
+    def __init__(self, parent: PlaceShipUI, ship: list[int, [[int, int]]]):
+        super().__init__()
+        self.parent: PlaceShipUI = parent
+        self.layout = QVBoxLayout()
+
+        self.ship: list[int, [[int, int]]] = ship
+
+        # children
+        self.create_ship_preview = CreateShipPreview(self)
+        self.create_settings_button = CreateSettingsButtons(self)
+
+    def run(self):
+        self.create_ship_preview.run()
+        self.create_settings_button.run()
+
+        self.parent.layout.addLayout(self.layout)
+
+
+class CreateSettingsButtons(QGridLayout):
+    def __init__(self, parent: DisplayShipSettings):
+        super().__init__()
+        self.parent: DisplayShipSettings = parent
+        self.layout = QGridLayout()
+
+    def run(self):
+        self.create_button()
+
+    def create_button(self):
+        self.layout.setSpacing(1)
+
+        # [self.layout.addWidget(QPushButton(ele)) for ele in SHIP_BUTTONS]
+        for i in range(len(SHIP_BUTTONS)):
+            button = QPushButton(SHIP_BUTTONS[i])
+            self.layout.addWidget(button, 0, i)
+
+        self.parent.layout.addLayout(self.layout)
+
+
+class CreateShipPreview(QGridLayout):
+    def __init__(self, parent: DisplayShipSettings):
+        super().__init__()
+        self.parent: DisplayShipSettings = parent
+        self.layout = QGridLayout()
+
+    def run(self):
+        self.create_ship_field()
+
+    def create_ship_field(self):
+        for i in range(self.parent.ship[1][len(self.parent.ship[1]) - 1][0] + 1):
+            print(f"i: {i}")
+            for j in range(self.parent.ship[1][len(self.parent.ship[1]) - 1][1] + 1):
+                print(f"j: {j}")
+
+                button = QPushButton()
+
+                button.setStyleSheet(f"background-color: red") if [i, j] in self.parent.ship[1] else button.hide()
+                button.setStyleSheet(f"background-color: blue") if [i, j] == [0, 0] else None
+
+                self.layout.addWidget(button, i, j)
+
+        # print(self.parent.ship[1][len(self.parent.ship[1]) - 1])
 
         self.parent.layout.addLayout(self.layout)
 
