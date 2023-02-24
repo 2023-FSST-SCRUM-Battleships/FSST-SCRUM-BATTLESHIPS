@@ -224,10 +224,7 @@ class CreateShipPreview(QGridLayout):
 
     def create_ship_field(self):
         for i in range(self.parent.ship[1][len(self.parent.ship[1]) - 1][0] + 1):
-            print(f"i: {i}")
             for j in range(self.parent.ship[1][len(self.parent.ship[1]) - 1][1] + 1):
-                print(f"j: {j}")
-
                 button = QPushButton()
 
                 button.setStyleSheet(f"background-color: red") if [i, j] in self.parent.ship[1] else button.hide()
