@@ -3,8 +3,9 @@ from PyQt6.QtWidgets import QApplication
 
 from comps.gui import MainWindow
 from network.common import encode_packet, decode_packet
-from src.network.client import Client
+from network.client import Client
 
+from database import *
 
 def gui_window_handler():
     app = QApplication(sys.argv)
@@ -20,8 +21,11 @@ def gui_window_handler():
 
 
 def main():
-    gui_window_handler()
-    # print(Client().connect())
+    #gui_window_handler()
+    #print(Client().connect())
+    db = DatabaseHelper()
+    db.update_schema()
+    db.connect()
 
 
 if __name__ == '__main__':
