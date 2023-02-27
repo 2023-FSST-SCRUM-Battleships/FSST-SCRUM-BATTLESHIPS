@@ -236,12 +236,11 @@ class CreateSettingsButtons(QGridLayout):
             self.parent.create_ship_preview.create_ship_field()
 
         if _type == "rotate left":
-            # [print("rotate left: ", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
-            if self.parent.rotation == 0:
-                self.parent.rotation = 3
+            if self.parent.rotation == 3:
+                self.parent.rotation = 0
 
             else:
-                self.parent.rotation -= 1
+                self.parent.rotation += 1
 
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_ship_field()
@@ -249,11 +248,11 @@ class CreateSettingsButtons(QGridLayout):
             # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
 
         if _type == "rotate right":
-            if self.parent.rotation == 3:
-                self.parent.rotation = 0
+            if self.parent.rotation == 0:
+                self.parent.rotation = 3
 
             else:
-                self.parent.rotation += 1
+                self.parent.rotation -= 1
 
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_ship_field()
@@ -298,10 +297,9 @@ class CreateShipPreview(QGridLayout):
         for i in range(min(current_ship)[0], max(current_ship)[0] + 1):
             for j in range(min(current_ship)[1], (max(current_ship)[1] + 1)):
                 button = QPushButton()
+                # button.setFixedSize(50, 50)
                 self.ship_preview_buttons.append([[i, j], button])
 
-                print([i, j], current_ship[0])
-                # button.setFixedSize(50, 50)
                 button.setStyleSheet(f"background-color: red") if [i, j] in current_ship else button.hide()
                 button.setStyleSheet(f"background-color: blue") if [i, j] == current_ship[0] else None
 
@@ -321,7 +319,6 @@ class CreateShipPreview(QGridLayout):
         if self.parent.rotation == 3:
             [ele.reverse() for ele in ship]
 
-        # print(ship)
         return ship
 
     def clear_preview_field(self):
