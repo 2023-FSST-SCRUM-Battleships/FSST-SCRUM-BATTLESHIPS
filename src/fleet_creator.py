@@ -1,30 +1,27 @@
 # types of ship
 ship_types = [
     {
-        "ship": 0,
         "form": [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]],
         "count": 1
     },
     {
-        "ship": 1,
         "form": [[0, 0], [1, 0], [2, 0]],
         "count": 2
     },
     {
-        "ship": 2,
         "form": [[0, 0], [1, 0]],
         "count": 3
     }
 ]
 
 rotation_map = [
-    lambda x, y: ( x,  y),
-    lambda x, y: ( y,  x),
+    lambda x, y: (x, y),
+    lambda x, y: (y, x),
     lambda x, y: (-x, -y),
     lambda x, y: (-y, -x),
 ]
 
-
+count = 0
 ship_count = 6
 
 
@@ -63,10 +60,13 @@ def coord_input():
 
 
 def place_ship(ship_type, x, y, rotation):
+    global count
+    count += 1
     for coord in ship_type["form"]:
         relX, relY = (i for i in coord)
         relX, relY = rotation_map[rotation](relX, relY)
-        board[y + relY][x + relX] = ship_type["ship"]
+
+        board[y + relY][x + relX] = count
 
 
 def check_ship(ship_type):
@@ -95,7 +95,11 @@ def check_cell(ship_type, x, y, rotation):
         return False
 
 
-def main():
+def creating_fleet():
+    """
+    This function creates the fleet
+    and handles invalid input
+    """
     try:
         ship_type = ship_input()
         while not check_ship(ship_type):
@@ -113,4 +117,4 @@ def main():
 
 
 while ship_count > 0:
-    main()
+    creating_fleet()
