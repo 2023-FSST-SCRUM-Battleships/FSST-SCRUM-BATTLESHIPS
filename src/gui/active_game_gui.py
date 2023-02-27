@@ -108,6 +108,8 @@ class PlayerGridLayout(QGridLayout):
             for j in range(FIELD_SIZE):
                 # button = QPushButton(f"{i, j}")
                 button = QPushButton()
+                button.setFixedSize(25, 25)
+                
                 self.buttons.append([[i, j], button])
                 self.layout.addWidget(button, i, j)
 
@@ -170,6 +172,8 @@ class EnemyGridLayout(QGridLayout):
             for j in range(FIELD_SIZE):
                 # button = QPushButton(f"{i, j}")
                 button = QPushButton()
+                button.setFixedSize(25, 25)
+
                 self.buttons.append([i, j, button])
                 self.layout.addWidget(button, i, j)
 
