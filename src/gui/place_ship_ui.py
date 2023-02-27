@@ -14,6 +14,13 @@ ROTATION_MAP = [
     lambda x, y: [-y, -x],
 ]
 
+SHIP_BUTTONS: list[str] = [
+    "<-",
+    "rotate left",
+    "rotate right",
+    "->",
+]
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -70,11 +77,11 @@ ship_coordinates: list[int, int, int] = [5, 5, 1]
 ships: list[[int, [[int, int]], [int, int, int]]] = \
     [
         # uuid, layout, root-coordinate
-        [0, [[0, 0], [1, 0], [2, 0]], [5, 5, 1]],
-        [1, [[0, 0], [0, 1], [0, 2]], [2, 2, 0]],
+        [0, [[0, 0], [1, 0], [2, 0]], [8, 2, 0]],
+        [1, [[0, 0], [0, 1], [0, 2]], [0, 2, 0]],
         [2, [[0, 0], [1, 0]], [9, 10, 2]],
-        [3, [[0, 0]], [7, 0, 3]],
-        [4, [[0, 0], [1, 0], [1, 1], [2, 1]], [0, 0, 0]]
+        [3, [[0, 0]], [3, 3, 3]],
+        [4, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]], [6, 6, 3]]
     ]
 
 
@@ -86,7 +93,7 @@ class PlayerGridLayout(QGridLayout):
         self.layout = QGridLayout()
 
         # children
-        self.ship_1 = Ship(self, ship_uuid, ship_form, ship_coordinates)
+        self.ship_1 = Ship(self, ships[0][0], ships[0][1], ships[0][2])
         self.ship_2 = Ship(self, ships[1][0], ships[1][1], ships[1][2])
         self.ship_3 = Ship(self, ships[2][0], ships[2][1], ships[2][2])
         self.ship_4 = Ship(self, ships[3][0], ships[3][1], ships[3][2])
@@ -151,14 +158,6 @@ class Ship:
                         element[1].setStyleSheet("background-color: red")
 
 
-SHIP_BUTTONS: list[str] = [
-    "<-",
-    "rotate left",
-    "rotate right",
-    "->",
-]
-
-
 class PlaceShipUI(QVBoxLayout):
     def __init__(self, parent: MainWindow):
         super().__init__()
@@ -194,18 +193,6 @@ class DisplayShipSettings(QVBoxLayout):
         self.create_settings_button.run()
 
         self.parent.layout.addLayout(self.layout)
-
-    """
-    ["left", lambda x, y: [x, y]],
-    ["right", lambda x, y: [x, y]],
-    """
-
-
-# [[0, 0], [1, 0], [2, 0]]
-
-CYCLE_ROTATION = [
-
-]
 
 
 class CreateSettingsButtons(QGridLayout):
@@ -306,16 +293,19 @@ class CreateShipPreview(QGridLayout):
 
         current_ship = self.cycle_rotation(current_ship)
 
+        # print("current_ship, rotation:", current_ship, self.parent.rotation)
+
         for i in range(min(current_ship)[0], max(current_ship)[0] + 1):
             for j in range(min(current_ship)[1], (max(current_ship)[1] + 1)):
                 button = QPushButton()
-                # button.setFixedSize(50, 50)
-
                 self.ship_preview_buttons.append([[i, j], button])
 
+                print([i, j], current_ship[0])
+                # button.setFixedSize(50, 50)
                 button.setStyleSheet(f"background-color: red") if [i, j] in current_ship else button.hide()
-                button.setStyleSheet(f"background-color: blue") if [i, j] == [0, 0] else None
-                self.layout.addWidget(button, current_ship[i][0], current_ship[j][1])
+                button.setStyleSheet(f"background-color: blue") if [i, j] == current_ship[0] else None
+
+                self.layout.addWidget(button, j, i)
 
         self.parent.layout.addLayout(self.layout)
 
@@ -331,6 +321,7 @@ class CreateShipPreview(QGridLayout):
         if self.parent.rotation == 3:
             [ele.reverse() for ele in ship]
 
+        # print(ship)
         return ship
 
     def clear_preview_field(self):
