@@ -14,10 +14,17 @@ ROTATION_MAP = [
     lambda x, y: [-y, -x],
 ]
 
+# todo: because "rotate right" doesn't work right now
+# SHIP_BUTTONS: list[str] = [
+#     "<-",
+#     "rotate left",
+#     "rotate right",
+#     "->",
+# ]
+
 SHIP_BUTTONS: list[str] = [
     "<-",
-    "rotate left",
-    "rotate right",
+    "rotate",
     "->",
 ]
 
@@ -213,6 +220,7 @@ class CreateSettingsButtons(QGridLayout):
         # [self.layout.addWidget(QPushButton(ele)) for ele in SHIP_BUTTONS]
         for i in range(len(SHIP_BUTTONS)):
             button = QPushButton(SHIP_BUTTONS[i])
+
             self.layout.addWidget(button, 0, i)
 
             self.settings_buttons.append([SHIP_BUTTONS[i], button])
@@ -235,19 +243,7 @@ class CreateSettingsButtons(QGridLayout):
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_ship_field()
 
-        if _type == "rotate left":
-            if self.parent.rotation == 3:
-                self.parent.rotation = 0
-
-            else:
-                self.parent.rotation += 1
-
-            self.parent.create_ship_preview.clear_preview_field()
-            self.parent.create_ship_preview.create_ship_field()
-
-            # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
-
-        if _type == "rotate right":
+        if _type == "rotate":
             if self.parent.rotation == 0:
                 self.parent.rotation = 3
 
@@ -257,7 +253,30 @@ class CreateSettingsButtons(QGridLayout):
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_ship_field()
 
-            # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
+        # todo: because "rotate right" doesn't work right niw
+        # if _type == "rotate left":
+        #     if self.parent.rotation == 0:
+        #         self.parent.rotation = 3
+        #
+        #     else:
+        #         self.parent.rotation -= 1
+        #
+        #     self.parent.create_ship_preview.clear_preview_field()
+        #     self.parent.create_ship_preview.create_ship_field()
+
+        # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
+
+        # if _type == "rotate right":
+        #     if self.parent.rotation == 3:
+        #         self.parent.rotation = 0
+        #
+        #     else:
+        #         self.parent.rotation += 1
+        #
+        #     self.parent.create_ship_preview.clear_preview_field()
+        #     self.parent.create_ship_preview.create_ship_field()
+
+        # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
 
         if _type == "->":
             if self.parent.uuid == self.parent.ships[-1][0]:
@@ -309,14 +328,18 @@ class CreateShipPreview(QGridLayout):
 
     def cycle_rotation(self, ship: list[[int, int]]):
         if self.parent.rotation == 0:
+            print(self.parent.rotation)
             ship.reverse()
             [ele.reverse() for ele in ship]
         if self.parent.rotation == 1:
+            print(self.parent.rotation)
             [ele.reverse() for ele in ship]
         if self.parent.rotation == 2:
+            print(self.parent.rotation)
             ship.reverse()
             [ele.reverse() for ele in ship]
         if self.parent.rotation == 3:
+            print(self.parent.rotation)
             [ele.reverse() for ele in ship]
 
         return ship
