@@ -94,19 +94,9 @@ class PlayerGridLayout(QGridLayout):
         self.layout = QGridLayout()
 
         # children
-        self.ship_1 = Ship(self, ships[0][0], ships[0][1], ships[0][2])
-        self.ship_2 = Ship(self, ships[1][0], ships[1][1], ships[1][2])
-        self.ship_3 = Ship(self, ships[2][0], ships[2][1], ships[2][2])
-        self.ship_4 = Ship(self, ships[3][0], ships[3][1], ships[3][2])
-        self.ship_5 = Ship(self, ships[4][0], ships[4][1], ships[4][2])
 
     def run(self):
         self.render_button_layout()
-        self.ship_1.run()
-        self.ship_2.run()
-        self.ship_3.run()
-        self.ship_4.run()
-        self.ship_5.run()
 
     def render_button_layout(self):
         self.layout.setSpacing(1)
@@ -126,14 +116,14 @@ class PlayerGridLayout(QGridLayout):
 
 
 class Ship:
-    def __init__(self, parent: PlayerGridLayout, uuid: int, form: list[[int, int]], coordinates: list[int, int, int]):
+    def __init__(self, parent: PlayerGridLayout, ship: list[int, [[int, int]], [int, int, int]]):
         super().__init__()
         self.parent: PlayerGridLayout = parent
 
-        # self.ships: list[[int, [[int, int]], [int, int, int]]] = ships
-        self.uuid: int = uuid
-        self.form: list[[int, int]] = form
-        self.root_coordinate: list[int, int, int] = coordinates
+        self.ship: list[int, [[int, int]], [int, int, int]] = ship
+        self.uuid: int = ship[0]
+        self.form: list[[int, int]] = ship[1]
+        self.root_coordinate: list[int, int, int] = ship[2]
         self.coordinates: list[[int]] = []
 
     def run(self):
@@ -280,10 +270,13 @@ class CreateShipPreview(QGridLayout):
         self.layout = QGridLayout()
 
         self.ship_preview_buttons: list[[[int, int], object]] = []
+        self.ship_field_buttons: list[[[int, int], object]] = \
+            self.parent.parent.parent.game_layout.player_buttons_grid_layout.buttons
 
     def run(self):
         self.layout.setSpacing(0)
         self.create_ship_field()
+        self.ship_field_on_click_handler()
 
         self.parent.layout.addLayout(self.layout)
 
@@ -296,36 +289,55 @@ class CreateShipPreview(QGridLayout):
                     current_ship = ele[1]
 
         # determine grid size (since the grid is square, the rotation of the ship does not matter yet)
-        min_width = max(current_ship)[0] - min(current_ship)[0] + 1
-        min_height = max(current_ship)[1] - min(current_ship)[1] + 1
+        min_field_width = max(current_ship)[0] - min(current_ship)[0] + 1
+        min_field_height = max(current_ship)[1] - min(current_ship)[1] + 1
 
-        grid_size = max(min_width, min_height) + 2
-        grid_size = max(grid_size, 5)
-        grid_size += (grid_size % 2 == 0)
-        center = floor(grid_size / 2)
+        field_size = max(min_field_width, min_field_height) + 2
+        field_size = max(field_size, 5)
+        field_size += (field_size % 2 == 0)
+        field_center = floor(field_size / 2)
 
         current_ship = [ROTATION_MAP[self.parent.rotation](tile[0], tile[1]) for tile in current_ship]
 
         self.layout.addWidget(QLabel(), 0, 0)
-        for y in range(grid_size):
+        for y in range(field_size):
             self.layout.addWidget(QLabel(), y + 1, 0)  # space left
-
-            for x in range(grid_size):
+            for x in range(field_size):
                 button = QPushButton()
                 button.setFixedSize(32, 32)
 
                 self.ship_preview_buttons.append([[x, y], button])
                 self.layout.addWidget(button, y + 1, x + 1)
 
-                button.setStyleSheet(f"background-color: red") if [x - center, y - center] in current_ship else \
-                    button.setStyleSheet(f"background-color: transparent")
-                button.setStyleSheet(f"background-color: blue") if [x - center, y - center] == current_ship[0] else None
+                button.setStyleSheet(f"background-color: red") if [x - field_center, y - field_center] in current_ship \
+                    else button.setStyleSheet(f"background-color: transparent")
+                button.setStyleSheet(f"background-color: blue") if [x - field_center, y - field_center] == current_ship[
+                    0] else None
 
-            self.layout.addWidget(QLabel(), y + 1, grid_size + 1)  # space right
-        self.layout.addWidget(QLabel(), grid_size + 1, 0)  # space bottom
+            self.layout.addWidget(QLabel(), y + 1, field_size + 1)  # space right
+        self.layout.addWidget(QLabel(), field_size + 1, 0)  # space bottom
 
     def clear_preview_field(self):
         [self.layout.itemAt(ele).widget().deleteLater() for ele in range(self.layout.count())]
+
+    def ship_field_on_click_handler(self):
+        [ele[1].clicked.connect(partial(self.connect_preview_with_ship_field, ele[0], ele[1])) for ele in
+         self.ship_field_buttons]
+
+    def connect_preview_with_ship_field(self, cords: list[int, int], button: QPushButton):
+        current_ship = []
+
+        for ele in self.parent.ships:
+            if self.parent.uuid in ele:
+                print("rotation", self.parent.rotation)
+                current_ship: list[int, [[int, int]], [int, int, int]] = [ele[0], ele[1], [cords[1], cords[0],
+                                                                                           self.parent.rotation]]
+                print(current_ship)
+
+                ship = Ship(self.parent.parent.parent.game_layout.player_buttons_grid_layout, current_ship)
+                ship.run()
+
+        # print(self.parent.parent.parent.game_layout.player_buttons_grid_layout.buttons)
 
 
 # todo: maybe we don't need this one => gonna use pictures instead
