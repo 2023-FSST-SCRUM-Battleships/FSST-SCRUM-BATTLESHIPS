@@ -1,4 +1,5 @@
 from functools import partial
+from math import floor
 
 from PyQt6.QtGui import QPalette, QColor
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel
@@ -14,17 +15,10 @@ ROTATION_MAP = [
     lambda x, y: [-y, -x],
 ]
 
-# todo: because "rotate right" doesn't work right now
-# SHIP_BUTTONS: list[str] = [
-#     "<-",
-#     "rotate left",
-#     "rotate right",
-#     "->",
-# ]
-
 SHIP_BUTTONS: list[str] = [
     "<-",
-    "rotate",
+    "rotate left",
+    "rotate right",
     "->",
 ]
 
@@ -76,14 +70,19 @@ class GameLayout(QVBoxLayout):
         self.parent.layout.addLayout(self.layout)
 
 
+# hardcoded for testing "Ship"
+ship_uuid: int = 0
+ship_form: list[[int, int]] = [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]
+ship_coordinates: list[int, int, int] = [5, 5, 1]
+
 ships: list[[int, [[int, int]], [int, int, int]]] = \
     [
         # uuid, layout, root-coordinate
-        [0, [[0, 0], [1, 0], [2, 0]]],
-        [1, [[0, 0], [0, 1], [0, 2]]],
-        [2, [[0, 0], [1, 0]]],
-        [3, [[0, 0]]],
-        [4, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]]
+        [0, [[0, 0], [1, 0], [2, 0]], [8, 2, 0]],
+        [1, [[0, 0], [0, 1], [0, 2]], [0, 2, 0]],
+        [2, [[0, 0], [1, 0]], [9, 10, 2]],
+        [3, [[0, 0]], [3, 3, 3]],
+        [4, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]], [6, 6, 3]]
     ]
 
 
@@ -94,8 +93,20 @@ class PlayerGridLayout(QGridLayout):
         self.buttons: list[[[int, int], object]] = []
         self.layout = QGridLayout()
 
+        # children
+        self.ship_1 = Ship(self, ships[0][0], ships[0][1], ships[0][2])
+        self.ship_2 = Ship(self, ships[1][0], ships[1][1], ships[1][2])
+        self.ship_3 = Ship(self, ships[2][0], ships[2][1], ships[2][2])
+        self.ship_4 = Ship(self, ships[3][0], ships[3][1], ships[3][2])
+        self.ship_5 = Ship(self, ships[4][0], ships[4][1], ships[4][2])
+
     def run(self):
         self.render_button_layout()
+        self.ship_1.run()
+        self.ship_2.run()
+        self.ship_3.run()
+        self.ship_4.run()
+        self.ship_5.run()
 
     def render_button_layout(self):
         self.layout.setSpacing(1)
@@ -115,16 +126,15 @@ class PlayerGridLayout(QGridLayout):
 
 
 class Ship:
-    def __init__(self, parent: PlayerGridLayout, ship: list[int, [[int, int]], [int, int, int]]):
+    def __init__(self, parent: PlayerGridLayout, uuid: int, form: list[[int, int]], coordinates: list[int, int, int]):
         super().__init__()
         self.parent: PlayerGridLayout = parent
 
-        self.ship: list[int, [[int, int]], [int, int, int]] = ship
-        self.uuid: int = ship[0]
-        self.form: [[int, int]] = ship[1]
-        self.root_coordinate: [int, int, int] = ship[2]
-        self.coordinates: list[[int, int]] = []
-        print("ship[2]", ship[2])
+        # self.ships: list[[int, [[int, int]], [int, int, int]]] = ships
+        self.uuid: int = uuid
+        self.form: list[[int, int]] = form
+        self.root_coordinate: list[int, int, int] = coordinates
+        self.coordinates: list[[int]] = []
 
     def run(self):
         # print(f"root-coordinates: {self.root_coordinate}")
@@ -165,6 +175,7 @@ class PlaceShipUI(QVBoxLayout):
 
 
 class DisplayShipSettings(QVBoxLayout):
+
     def __init__(self, parent: PlaceShipUI):
         super().__init__()
         self.parent: PlaceShipUI = parent
@@ -204,7 +215,6 @@ class CreateSettingsButtons(QGridLayout):
         # [self.layout.addWidget(QPushButton(ele)) for ele in SHIP_BUTTONS]
         for i in range(len(SHIP_BUTTONS)):
             button = QPushButton(SHIP_BUTTONS[i])
-
             self.layout.addWidget(button, 0, i)
 
             self.settings_buttons.append([SHIP_BUTTONS[i], button])
@@ -224,11 +234,22 @@ class CreateSettingsButtons(QGridLayout):
             else:
                 self.parent.uuid -= 1
 
-            self.parent.rotation = 0
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_ship_field()
 
-        if _type == "rotate":
+        elif _type == "rotate left":
+            if self.parent.rotation == 3:
+                self.parent.rotation = 0
+
+            else:
+                self.parent.rotation += 1
+
+            self.parent.create_ship_preview.clear_preview_field()
+            self.parent.create_ship_preview.create_ship_field()
+
+            # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
+
+        elif _type == "rotate right":
             if self.parent.rotation == 0:
                 self.parent.rotation = 3
 
@@ -238,41 +259,18 @@ class CreateSettingsButtons(QGridLayout):
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_ship_field()
 
-        # todo: because "rotate right" doesn't work right now
-        # if _type == "rotate left":
-        #     if self.parent.rotation == 0:
-        #         self.parent.rotation = 3
-        #
-        #     else:
-        #         self.parent.rotation -= 1
-        #
-        #     self.parent.create_ship_preview.clear_preview_field()
-        #     self.parent.create_ship_preview.create_ship_field()
+            # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
 
-        # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
-
-        # if _type == "rotate right":
-        #     if self.parent.rotation == 3:
-        #         self.parent.rotation = 0
-        #
-        #     else:
-        #         self.parent.rotation += 1
-        #
-        #     self.parent.create_ship_preview.clear_preview_field()
-        #     self.parent.create_ship_preview.create_ship_field()
-
-        # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
-
-        if _type == "->":
+        elif _type == "->":
             if self.parent.uuid == self.parent.ships[-1][0]:
                 self.parent.uuid = self.parent.ships[0][0]
+                self.parent.create_ship_preview.clear_preview_field()
+                self.parent.create_ship_preview.create_ship_field()
 
             else:
                 self.parent.uuid += 1
-
-            self.parent.rotation = 0
-            self.parent.create_ship_preview.clear_preview_field()
-            self.parent.create_ship_preview.create_ship_field()
+                self.parent.create_ship_preview.clear_preview_field()
+                self.parent.create_ship_preview.create_ship_field()
 
 
 class CreateShipPreview(QGridLayout):
@@ -281,13 +279,13 @@ class CreateShipPreview(QGridLayout):
         self.parent: DisplayShipSettings = parent
         self.layout = QGridLayout()
 
-        self.field_buttons: list[[[int, int], object]] = \
-            self.parent.parent.parent.game_layout.player_buttons_grid_layout.buttons
         self.ship_preview_buttons: list[[[int, int], object]] = []
 
     def run(self):
+        self.layout.setSpacing(0)
         self.create_ship_field()
-        self.connect_button_with_ship()
+
+        self.parent.layout.addLayout(self.layout)
 
     def create_ship_field(self):
         current_ship: list[[int, int]] = []
@@ -297,64 +295,37 @@ class CreateShipPreview(QGridLayout):
                 if e == self.parent.uuid:
                     current_ship = ele[1]
 
-        current_ship = self.cycle_rotation(current_ship)
+        # determine grid size (since the grid is square, the rotation of the ship does not matter yet)
+        min_width = max(current_ship)[0] - min(current_ship)[0] + 1
+        min_height = max(current_ship)[1] - min(current_ship)[1] + 1
 
-        # print("current_ship, rotation:", current_ship, self.parent.rotation)
+        grid_size = max(min_width, min_height) + 2
+        grid_size = max(grid_size, 5)
+        grid_size += (grid_size % 2 == 0)
+        center = floor(grid_size / 2)
 
-        for i in range(min(current_ship)[0], max(current_ship)[0] + 1):
-            for j in range(min(current_ship)[1], (max(current_ship)[1] + 1)):
+        current_ship = [ROTATION_MAP[self.parent.rotation](tile[0], tile[1]) for tile in current_ship]
+
+        self.layout.addWidget(QLabel(), 0, 0)
+        for y in range(grid_size):
+            self.layout.addWidget(QLabel(), y + 1, 0)  # space left
+
+            for x in range(grid_size):
                 button = QPushButton()
-                # button.setFixedSize(50, 50)
-                self.ship_preview_buttons.append([[i, j], button])
+                button.setFixedSize(32, 32)
 
-                button.setStyleSheet(f"background-color: red") if [i, j] in current_ship else button.hide()
-                button.setStyleSheet(f"background-color: blue") if [i, j] == current_ship[0] else None
+                self.ship_preview_buttons.append([[x, y], button])
+                self.layout.addWidget(button, y + 1, x + 1)
 
-                self.layout.addWidget(button, j, i)
+                button.setStyleSheet(f"background-color: red") if [x - center, y - center] in current_ship else \
+                    button.setStyleSheet(f"background-color: transparent")
+                button.setStyleSheet(f"background-color: blue") if [x - center, y - center] == current_ship[0] else None
 
-        # [print("ele:", ele) for ele in self.ship_preview_buttons]
-
-        self.parent.layout.addLayout(self.layout)
-
-    def cycle_rotation(self, ship: list[[int, int]]):
-        if self.parent.rotation == 0:
-            # print(self.parent.rotation)
-            ship.reverse()
-            [ele.reverse() for ele in ship]
-        if self.parent.rotation == 1:
-            # print(self.parent.rotation)
-            [ele.reverse() for ele in ship]
-        if self.parent.rotation == 2:
-            # print(self.parent.rotation)
-            ship.reverse()
-            [ele.reverse() for ele in ship]
-        if self.parent.rotation == 3:
-            # print(self.parent.rotation)
-            [ele.reverse() for ele in ship]
-
-        return ship
+            self.layout.addWidget(QLabel(), y + 1, grid_size + 1)  # space right
+        self.layout.addWidget(QLabel(), grid_size + 1, 0)  # space bottom
 
     def clear_preview_field(self):
-        for ele in self.ship_preview_buttons:
-            ele[1].deleteLater()
-
-        self.ship_preview_buttons = []
-
-    def connect_button_with_ship(self):
-        [ele[1].clicked.connect(partial(self.button_clicked_handler, ele[0], ele[1])) for ele in self.field_buttons]
-
-    def button_clicked_handler(self, cords: list[int, int], button: object):
-        # Ship(self, ships[0][0], ships[0][1], ships[0][2])
-
-        for ele in self.parent.ships:
-            if self.parent.uuid in ele:
-                print("rotation", self.parent.rotation)
-                current_ship: list[int, [[int, int]], [int, int, int]] = [ele[0], reversed(ele[1]), [cords[1], cords[0],
-                                                                                                     self.parent.rotation]]
-
-                print("rotation", self.parent.rotation)
-                ship = Ship(self.parent.parent.parent.game_layout.player_buttons_grid_layout, current_ship)
-                ship.run()
+        [self.layout.itemAt(ele).widget().deleteLater() for ele in range(self.layout.count())]
 
 
 # todo: maybe we don't need this one => gonna use pictures instead
