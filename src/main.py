@@ -1,8 +1,9 @@
 import sys
+
 from PyQt6.QtWidgets import QApplication
 
 # from gui.main_gui import MainWindow, PlayerGridLayout, Ship
-from gui.place_ship_ui import MainWindow, PlayerGridLayout
+from gui.place_ship_ui import MainWindow
 
 # from network.common import encode_packet, decode_packet
 # from src.network.client import Client
