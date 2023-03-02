@@ -2,7 +2,8 @@ from functools import partial
 from math import floor
 
 from PyQt6.QtGui import QPalette, QColor
-from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, \
+    QMessageBox
 
 WINDOW_WIDTH: int = 800
 WINDOW_HEIGHT: int = 400
@@ -24,7 +25,6 @@ SHIP_BUTTONS: list[str] = [
 
 SHIPS: list[[int, [[int, int]]]] = \
     [
-        # uuid, layout, root-coordinate
         [0, [[0, 0], [1, 0], [2, 0]]],
         [1, [[0, 0], [0, 1], [0, 2]]],
         [2, [[0, 0], [1, 0]]],
@@ -33,6 +33,7 @@ SHIPS: list[[int, [[int, int]]]] = \
     ]
 
 PLACED_SHIPS: list[[int, [[int, int], [int, int, int]]]] = []
+USED_COORDINATES: list[[int, int]] = []
 
 
 class MainWindow(QMainWindow):
@@ -105,10 +106,7 @@ class PlayerGridLayout(QGridLayout):
                 self.buttons.append([[i, j], button])
                 self.layout.addWidget(button, i, j)
 
-        # [print(ele) for ele in self.buttons]
         self.parent.layout.addLayout(self.layout)
-
-    # def display_placed_ship(self):
 
 
 class Ship:
@@ -123,7 +121,6 @@ class Ship:
         self.coordinates: list[[int]] = []
 
     def run(self):
-        # print(f"root-coordinates: {self.root_coordinate}")
         self.get_coordinates_with_rotation()
         self.place_ship()
 
@@ -132,8 +129,6 @@ class Ship:
             relative_x, relative_y = (ele for ele in element)
             relative_x, relative_y = ROTATION_MAP[self.root_coordinate[2]](relative_x, relative_y)
             self.coordinates.append([self.root_coordinate[1] + relative_y, self.root_coordinate[0] + relative_x])
-
-        # print(f"coordinates: {self.coordinates[0]}")
 
     def place_ship(self):
         for element in self.parent.buttons:
@@ -153,7 +148,6 @@ class PlaceShipUI(QVBoxLayout):
 
         # children
         self.display_ship_settings = DisplayShipSettings(self)
-        # DisplayShipSettings hardcoded for testing
 
     def run(self):
         self.display_ship_settings.run()
@@ -197,14 +191,12 @@ class CreateSettingsButtons(QGridLayout):
     def create_button(self):
         self.layout.setSpacing(1)
 
-        # [self.layout.addWidget(QPushButton(ele)) for ele in SHIP_BUTTONS]
         for i in range(len(SHIP_BUTTONS)):
             button = QPushButton(SHIP_BUTTONS[i])
             self.layout.addWidget(button, 0, i)
 
             self.settings_buttons.append([SHIP_BUTTONS[i], button])
 
-        # [print("buttons:", ele) for ele in self.settings_buttons]
         self.parent.layout.addLayout(self.layout)
 
     def connect_buttons(self):
@@ -232,7 +224,6 @@ class CreateSettingsButtons(QGridLayout):
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_preview_field()
 
-            # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
 
         elif _type == "rotate right":
             if self.parent.rotation == 0:
@@ -244,7 +235,6 @@ class CreateSettingsButtons(QGridLayout):
             self.parent.create_ship_preview.clear_preview_field()
             self.parent.create_ship_preview.create_preview_field()
 
-            # [print("cords:", ele[0]) for ele in self.parent.create_ship_preview.ship_preview_buttons]
 
         elif _type == "->":
             if self.parent.uuid == self.parent.ships[-1][0]:
@@ -263,8 +253,6 @@ class CreateShipPreview(QGridLayout):
         super().__init__()
         self.parent: DisplayShipSettings = parent
         self.layout = QGridLayout()
-
-        self.finish_button: QPushButton = None
 
         self.ship_preview_buttons: list[[[int, int], object]] = []
         self.ship_field_buttons: list[[[int, int], object]] = \
@@ -285,7 +273,6 @@ class CreateShipPreview(QGridLayout):
                 if e == self.parent.uuid:
                     current_ship = ele[1]
 
-        # determine grid size (since the grid is square, the rotation of the ship does not matter yet)
         min_field_width = max(current_ship)[0] - min(current_ship)[0] + 1
         min_field_height = max(current_ship)[1] - min(current_ship)[1] + 1
 
@@ -321,38 +308,65 @@ class CreateShipPreview(QGridLayout):
         [ele[1].clicked.connect(partial(self.connect_preview_with_ship_field, ele[0])) for ele in
          self.ship_field_buttons]
 
+    def check_for_overlapping(self, ship) -> bool:
+        coordinates = []
+
+        for element in ship[1]:
+            relative_x, relative_y = (ele for ele in element)
+            relative_x, relative_y = ROTATION_MAP[ship[2][2]](relative_x, relative_y)
+            coordinates.append([ship[2][1] + relative_y, ship[2][0] + relative_x])
+
+        for element in USED_COORDINATES:
+            for ele in coordinates:
+                if ele in element:
+                    return False
+
+        USED_COORDINATES.append(coordinates)
+        return True
+
     def connect_preview_with_ship_field(self, cords: list[int, int]):
         for ele in self.parent.ships:
             if self.parent.uuid in ele:
                 current_ship: list[int, [[int, int]], [int, int, int]] = [ele[0], ele[1], [cords[1], cords[0],
                                                                                            self.parent.rotation]]
 
-                PLACED_SHIPS.append(current_ship)
-                ship = Ship(self.parent.parent.parent.game_layout.player_buttons_grid_layout, current_ship)
-                ship.run()
+                check = self.check_for_overlapping(current_ship)
 
-                self.parent.ships.remove(ele)
-                self.clear_preview_field()
+                if check:
+                    PLACED_SHIPS.append(current_ship)
+                    ship = Ship(self.parent.parent.parent.game_layout.player_buttons_grid_layout, current_ship)
+                    ship.run()
 
-                if len(self.parent.ships) != 0:
-                    self.parent.uuid = min(self.parent.ships)[0]
-                    self.create_preview_field()
+                    self.parent.ships.remove(ele)
+                    self.clear_preview_field()
+
+                    if len(self.parent.ships) != 0:
+                        self.parent.uuid = min(self.parent.ships)[0]
+                        self.create_preview_field()
+
+                    else:
+                        [ele[1].deleteLater() for ele in self.parent.create_settings_button.settings_buttons]
+
+                        finish_alert = QMessageBox(self.parent.parent.parent)
+                        finish_alert.setWindowTitle("Alert")
+                        finish_alert.setText("Successfully placed all ships correct")
+                        finish_alert.setStandardButtons(QMessageBox.StandardButton.Close)
+                        finish_alert.setIcon(QMessageBox.Icon.Information)
+
+                        finish_alert.exec()
+
+                        # todo: here we should send "PLACED_SHIPS" / "USED_COORDINATES" to the server (probably "USED_COORDINATES")
+
+                        self.parent.parent.parent.close()
 
                 else:
-                    [ele[1].deleteLater() for ele in self.parent.create_settings_button.settings_buttons]
+                    finish_alert = QMessageBox(self.parent.parent.parent)
+                    finish_alert.setWindowTitle("Alert")
+                    finish_alert.setText("Ship is overlapping with another one")
+                    finish_alert.setStandardButtons(QMessageBox.StandardButton.Close)
+                    finish_alert.setIcon(QMessageBox.Icon.Critical)
 
-                    button = QPushButton("finish")
-                    button.setStyleSheet("font-size: 16px")
-
-                    self.finish_button = button
-
-                    self.parent.create_settings_button.layout.addWidget(QLabel())  # spacer left
-                    self.parent.create_settings_button.layout.addWidget(button)
-                    self.parent.create_settings_button.layout.addWidget(QLabel())  # spacer right
-
-        # [print(ele) for ele in self.parent.ships]
-
-    # print(self.parent.parent.parent.game_layout.player_buttons_grid_layout.buttons)
+                    finish_alert.exec()
 
 
 # todo: maybe we don't need this one => gonna use pictures instead
