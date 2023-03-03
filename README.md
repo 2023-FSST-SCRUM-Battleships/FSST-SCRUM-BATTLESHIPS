@@ -22,7 +22,7 @@ To install the requirements, type in your commandline `pip install -r requiremen
 
 - [ ] <font size="4">`BS-5`</font>: connection with database
 
-- [ ] <font size="4">`BS-12`</font>: render ships
+- [x] <font size="4">`BS-12`</font>: render ships
 
 - [ ] <font size="4">`BS-17`</font>: set up automatic deployment
 
@@ -36,7 +36,7 @@ To install the requirements, type in your commandline `pip install -r requiremen
 
 - [ ] <font size="4">`BS-21`</font>: set up shots
 
-- [ ] <font size="4">`BS-30`</font>: drawing fundamental ships
+- [x] <font size="4">`BS-30`</font>: drawing fundamental ships
 
 ## Week 3
 

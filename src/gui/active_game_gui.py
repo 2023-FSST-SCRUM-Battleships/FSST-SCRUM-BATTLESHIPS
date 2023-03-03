@@ -13,7 +13,7 @@ ROTATION_MAP = [
 ]
 
 
-class MainWindow(QMainWindow):
+class Game(QMainWindow):
     def __init__(self):
         super().__init__()
         self.layout = QHBoxLayout()
@@ -42,9 +42,9 @@ class MainWindow(QMainWindow):
 
 
 class GameLayout(QVBoxLayout):
-    def __init__(self, parent: MainWindow):
+    def __init__(self, parent: Game):
         super().__init__()
-        self.parent: MainWindow = parent
+        self.parent: Game = parent
         self.layout = QVBoxLayout()
 
         # children
@@ -181,9 +181,9 @@ class EnemyGridLayout(QGridLayout):
 
 
 class StatsLayout(QVBoxLayout):
-    def __init__(self, parent: MainWindow):
+    def __init__(self, parent: Game):
         super().__init__()
-        self.parent: MainWindow = parent
+        self.parent: Game = parent
         self.layout = QVBoxLayout()
 
     def run(self):
