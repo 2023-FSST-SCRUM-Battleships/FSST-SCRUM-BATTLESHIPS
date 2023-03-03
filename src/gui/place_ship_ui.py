@@ -36,7 +36,7 @@ PLACED_SHIPS: list[[int, [[int, int], [int, int, int]]]] = []
 USED_COORDINATES: list[[int, int]] = []
 
 
-class MainWindow(QMainWindow):
+class ShipPlacement(QMainWindow):
     def __init__(self):
         super().__init__()
         self.layout = QHBoxLayout()
@@ -64,9 +64,9 @@ class MainWindow(QMainWindow):
 
 
 class GameLayout(QVBoxLayout):
-    def __init__(self, parent: MainWindow):
+    def __init__(self, parent: ShipPlacement):
         super().__init__()
-        self.parent: MainWindow = parent
+        self.parent: ShipPlacement = parent
         self.layout = QVBoxLayout()
 
         # children
@@ -141,9 +141,9 @@ class Ship:
 
 
 class PlaceShipUI(QVBoxLayout):
-    def __init__(self, parent: MainWindow):
+    def __init__(self, parent: ShipPlacement):
         super().__init__()
-        self.parent: MainWindow = parent
+        self.parent: ShipPlacement = parent
         self.layout = QVBoxLayout()
 
         # children
@@ -321,6 +321,11 @@ class CreateShipPreview(QGridLayout):
                 if ele in element:
                     return False
 
+        for element in coordinates:
+            for ele in element:
+                if ele > 12:
+                    return False
+
         USED_COORDINATES.append(coordinates)
         return True
 
@@ -349,7 +354,7 @@ class CreateShipPreview(QGridLayout):
 
                         finish_alert = QMessageBox(self.parent.parent.parent)
                         finish_alert.setWindowTitle("Alert")
-                        finish_alert.setText("Successfully placed all ships correct")
+                        finish_alert.setText("Successfully placed all ships correct or out of game-field")
                         finish_alert.setStandardButtons(QMessageBox.StandardButton.Close)
                         finish_alert.setIcon(QMessageBox.Icon.Information)
 
@@ -362,7 +367,7 @@ class CreateShipPreview(QGridLayout):
                 else:
                     finish_alert = QMessageBox(self.parent.parent.parent)
                     finish_alert.setWindowTitle("Alert")
-                    finish_alert.setText("Ship is overlapping with another one")
+                    finish_alert.setText("Ship is overlapping with another one or is out of game-field")
                     finish_alert.setStandardButtons(QMessageBox.StandardButton.Close)
                     finish_alert.setIcon(QMessageBox.Icon.Critical)
 
