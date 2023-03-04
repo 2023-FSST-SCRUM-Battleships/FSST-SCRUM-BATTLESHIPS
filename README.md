@@ -36,6 +36,8 @@ To install the requirements, type in your commandline `pip install -r requiremen
 
 - [ ] <font size="4">`BS-21`</font>: set up shots
 
+- [ ] <font size="4">`BS-30`</font>: drawing fundamental ships
+
 ## Week 3
 
 - [ ] <font size="4">`BS-7`</font>: matchmaking
@@ -47,6 +49,8 @@ To install the requirements, type in your commandline `pip install -r requiremen
 - [ ] <font size="4">`BS-15`</font>: login network
 
 - [ ] <font size="4">`BS-22`</font>: display shots in GUI
+
+- [ ] <font size="4">`BS-31`</font>: drawing detailed ships
 
 ## Week 4
 
