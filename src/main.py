@@ -2,7 +2,7 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
-# from gui.main_gui import MainWindow, PlayerGridLayout, Ship
+from database import *
 from gui.place_ship_ui import MainWindow
 
 # from network.common import encode_packet, decode_packet
@@ -28,6 +28,11 @@ def gui_window_handler() -> None:
 
 
 def main():
+    #gui_window_handler()
+    #print(Client().connect())
+    db = DatabaseHelper()
+    db.update_schema()
+    db.connect()
     # from src.cli.fleet_creator import board
     # [print(ele) for ele in board]
     # Ship(ship_uuid, ship_form, ship_coordinates).run()

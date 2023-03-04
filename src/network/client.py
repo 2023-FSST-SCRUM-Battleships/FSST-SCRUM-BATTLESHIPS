@@ -1,6 +1,6 @@
 import socket
 
-from src.network.common import *
+from network.common import *
 
 SERVER_ADDRESS = "aether.net.co"
 
