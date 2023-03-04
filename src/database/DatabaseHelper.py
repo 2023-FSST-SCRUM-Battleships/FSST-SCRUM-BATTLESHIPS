@@ -41,7 +41,7 @@ import database
 
 _host = "localhost"
 _user = "battleships"
-_database = "battleship"
+_database = "battleships"
 _password = "(Dsi@!WQqc3VC8ztD=n/(:rg)u9VmFN["
 _db = MySQLDatabase(host=_host, user=_user, database=_database, password=_password)
 
@@ -69,7 +69,7 @@ class BaseEntity(Model):
 
 class DatabaseHelper(object):
     def connect(self):
-        conn = pymysql.connect(host=_host, user=_user)
+        conn = pymysql.connect(host=_host, user=_user, password = _password)
         conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS `{_database}`')
         conn.close()
         _db.connect(True)
