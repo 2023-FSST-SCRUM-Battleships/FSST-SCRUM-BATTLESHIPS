@@ -1,29 +1,32 @@
 import socket
-
 from src.network.common import *
 
-SERVER_ADDRESS = "aether.net.co"
+IP = socket.gethostbyname(socket.gethostname())
+PORT = 5566
+ADDR = (IP, PORT)
+FORMAT = 'utf-8'
+DISCONNECT_MSG = "!DISCONNECT"
 
 
 class Client:
     def __init__(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def connect(self, server_address: str = SERVER_ADDRESS) -> bool:
+    def connect(self) -> bool:
         """
         connects to a certain server-address
-        :param server_address:
         :return:
         """
 
         try:
-            self.socket.connect((server_address, SERVER_PORT))
+            self.client.connect(ADDR)
+            print(f"[CONNECTED] {ADDR}")
             return True
 
         except IOError:
             return False
 
-    def send(self, _type: str, data: any or None = None) -> bool:
+    def send_to_server(self, _type: str, data: any or None = None) -> bool:
         """
         sends a packet with a type & its data to server
         :param _type:
@@ -32,7 +35,7 @@ class Client:
         """
 
         try:
-            self.socket.send(encode_packet(_type, data).encode("utf-8"))
+            self.client.send(encode_packet(_type, data).encode(FORMAT))
 
         except IOError:
             return False
@@ -48,7 +51,7 @@ class Client:
             accu = bytearray()
 
             while True:
-                data = self.socket.recv(512)
+                data = self.client.recv(512)
                 if not data:
                     # end of sent data / no bytes received
                     break
@@ -60,8 +63,40 @@ class Client:
                     # end of sent data but not receive size
                     break
 
-            _type, data = decode_packet(accu.decode("utf-8"))
+            _type, data = decode_packet(accu.decode(FORMAT))
             return True, _type, data
 
         except IOError:
             return False, None, None
+
+
+if __name__ == "__main__":
+    cl = Client()
+    connected = cl.connect()
+
+    while connected:
+        server_msg = cl.receive()
+        client_input = int(input("> "))
+        if client_input == 0:
+            connected = False
+            break
+
+        elif client_input == 2:
+            cl.send_to_server('user_instruction', client_input)
+            server_msg = cl.receive()
+            if server_msg[1] in ['ship_id_msg', 'invalid_shipID_msg']:
+                ship_input = input("> ")
+                cl.send_to_server('ship_id_msg', ship_input)
+
+            elif server_msg[1] in ['ship_coord_msg', 'invalid_coord_msg']:
+                coord_input = input("> ")
+                cl.send_to_server('ship_coord_msg', coord_input)
+
+# print(f"[SERVER] {server_msg[2]}")
+'''
+Game instructions:
+0 = EXIT
+1 = FINISH
+2 = CREATE FLEET
+3 = HIT
+'''

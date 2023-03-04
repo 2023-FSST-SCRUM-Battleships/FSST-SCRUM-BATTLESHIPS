@@ -1,11 +1,8 @@
-SERVER_PORT = 2003
-
-
 class JSON:
     """
     import Python-commands as JSON Javascript-commands
     """
-    
+
     from json import dumps as stringify
     from json import loads as parse
 

@@ -1,100 +1,121 @@
-import json
 import socket
-from enum import Enum
+import threading
+from common import *
+from msg_handler import *
+
+IP = socket.gethostbyname(socket.gethostname())
+PORT = 5566
+ADDR = (IP, PORT)
+FORMAT = "utf-8"
+DISC_MSG = "!DISCONNECT"
 
 
-class GuessResponse(Enum):
-    MISS = 0
-    HIT = 1
-    SUNK = 2
-    WIN = 3
-    INVALID = 4
+class Server:
+    def __init__(self):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print("[STARTING] Server is starting...")
 
-    @classmethod
-    def from_string(cls, string: str):
-        if string == "miss":
-            return GuessResponse.MISS
-        if string == "hit":
-            return GuessResponse.HIT
-        if string == "sunk":
-            return GuessResponse.SUNK
-        if string == "win":
-            return GuessResponse.WIN
-        if string == "invalid":
-            return GuessResponse.INVALID
+    def send_to_client(self, conn, _type: str, data: any or None = None) -> bool:
+        """
+        sends a packet with a type & its data to client
+        :param _type:
+        :param data:
+        :return:
+        """
 
-    def __str__(self) -> str:
-        if self.value == 0:
-            return "miss"
-        if self.value == 1:
-            return "hit"
-        if self.value == 2:
-            return "sunk"
-        if self.value == 3:
-            return "win"
-        if self.value == 4:
-            return "invalid"
+        try:
+            conn.send(encode_packet(_type, data).encode(FORMAT))
+
+        except IOError:
+            return False
+
+    def receive(self, conn) -> tuple[bool, any, any]:
+        """
+        receives a packet from client
+        :return:
+        """
+
+        try:
+            # accu = collects all the bytes aka "buffer" -> accu is for receiving more than the recv size
+            accu = bytearray()
+
+            while True:
+                data = conn.recv(512)
+                print(data)
+                if not data:
+                    # end of sent data / no bytes received
+                    break
+
+                for byte in data:
+                    accu.append(byte)
+
+                if len(data) < 512:
+                    # end of sent data but not receive size
+                    break
+
+            _type, data = decode_packet(accu.decode(FORMAT))
+            return True, _type, data
+
+        except IOError as Err:
+            print(Err)
+            return False, None, None
+
+    def handle_client(self, conn, addr):
+        print(f"[NEW CONNECTION] {addr} connected.")
+        connected = True
+        while connected:
+            self.send_to_client(conn, "info_msg", "Welcome to the Battleship game!\n"
+                                                  "You need to create your fleet!\n"
+                                                  "Available ships: Carrier 1x, Submarine 2x and Destroyer 3x\n"
+                                                  "Game instructions: \n"
+                                                  "0 = EXIT\n"
+                                                  "1 = FINISH\n"
+                                                  "2 = CREATE FLEET\n"
+                                                  "3 = HIT"
+                                )
+
+            client_msg = self.receive(conn)
+
+            # if message received
+            if client_msg[0]:
+                # checks for the type of input
+                # if input is EXIT
+                if client_msg[2] == 0:
+                    connected = False
+                    break
+
+                # if user wants to create fleet
+                if client_msg[2] == 2:
+                    self.send_to_client(conn, 'ship_id_msg', 'Input ship: ')
+                    ship_type = self.receive(conn)
+                    # until user says he is done with placing ships
+                    while ship_type[2] != 1:
+                        # in handle_message try and except block for catching invalid input - returns True/False
+                        while not handle_message(ship_type[1:]):
+                            self.send_to_client(conn, 'invalid_shipID_msg', 'Invalid input! Please try again:')
+                            ship_type = self.receive(conn)
+                        else:
+                            self.send_to_client(conn, 'info_msg', 'Message received')
+
+                        self.send_to_client(conn, 'ship_coord_msg', 'Please enter the coordinates and rotation: ')
+                        coord = self.receive(conn)
+                        while not handle_message(coord[1:]):
+                            self.send_to_client(conn, 'invalid_coord_msg', 'Invalid input! Please try again: ')
+                            coord = self.receive(conn)
+
+                        self.send_to_client(conn, 'board_status', board)
+
+        conn.close()
 
 
-class Connection(object):
-    """Uses sockets to communicate with opponent. 'Packet'-format: 'type;data;' """
+if __name__ == "__main__":
+    serv = Server()
+    serv.server.bind(ADDR)
+    serv.server.listen()
+    print(f"[LISTENING] Server is listening on {ADDR}")
 
-    def __init__(self, open_as="client", port: int = 5778, address: str = "127.0.0.1"):
-        """Opens the communication either as a server or a client"""
-        if not address:
-            address = "127.0.0.1"
-        mode = open_as
-        if mode == "client":
-            self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.connection.connect((address, port))
-        elif mode == "server":
-            server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server.bind((address, port))
-            server.listen(1)
-            self.connection, ignore = server.accept()
-        else:
-            raise ValueError("only 'server' and 'client' as arguments allowed. found: " + str(open_as))
-
-    def send_guess(self, x: int, y: int):
-        packet = {"mode": "hit", "cell": [x, y]}
-        self.connection.send(json.dumps(packet).encode())
-
-    def await_guess(self) -> tuple[int, int] | None:
-        """this method blocks, until a guess was received (or an error occurred)"""
-        data = self.connection.recv(512).decode()
-        packet = json.loads(data)
-        mode = packet.get("mode")
-        if mode != "hit":
-            return None
-        cell = packet.get("cell")
-        return cell[0], cell[1]
-
-    def send_response(self, response: GuessResponse):
-        packet = {"mode": "response", "response": str(response)}
-        self.connection.send(json.dumps(packet).encode())
-
-    def await_response(self):
-        """this method blocks, until a FieldState was received (or an error occurred)"""
-        data = self.connection.recv(512).decode()
-        packet = json.loads(data)
-        mode = packet.get("mode")
-        if mode != "response":
-            return None
-        response = GuessResponse.from_string(packet.get("response"))
-        return response
-
-    def await_done(self):
-        """this method blocks, until a "done" was received (or an error occurred)"""
-        data = self.connection.recv(512).decode()
-        packet = json.loads(data)
-        mode = packet.get("mode")
-        if mode != "done":
-            return None
-
-    def send_done(self):
-        packet = {"mode": "done"}
-        self.connection.send(json.dumps(packet).encode())
-
-    def await_both_done(self):
-        self.send_done()
-        self.await_done()
+    while True:
+        conn, addr = serv.server.accept()
+        thread = threading.Thread(target=serv.handle_client, args=(conn, addr))
+        thread.start()
+        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
