@@ -180,7 +180,22 @@ class EnemyGridLayout(QGridLayout):
         # todo: server returns bool "True" if clicked button-coordinates matches the other clients-coordinate - else
         #  return bool "False"
 
-        pass
+        # todo: check is either bool "False" or "True", depending on the server answer
+
+        check: bool
+
+        # if-statement for testing
+        if ((coordinates[0] + coordinates[1]) % 2) == 0:
+            check = True
+        else:
+            check = False
+
+        # actual code
+        if check:
+            button.setStyleSheet("background-color: red")
+
+        if not check:
+            button.setStyleSheet("background-color: gray")
 
 
 class StatsLayout(QVBoxLayout):
