@@ -69,6 +69,14 @@ class Fields(QHBoxLayout):
                     layout.addWidget(label)
                     layout.addWidget(line)
 
+                if ele == "Confirm password":
+                    for i in range(2):
+                        label_spacer = QLabel()
+                        label_spacer.setStyleSheet("font-size: 16px")
+
+                        self.register.append(["", label_spacer])
+                        layout.addWidget(label_spacer)
+
         self.layout.addLayout(layout)
 
     def clear_field(self, _type):
