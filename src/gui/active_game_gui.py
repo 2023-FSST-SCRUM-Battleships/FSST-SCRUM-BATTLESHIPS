@@ -1,16 +1,28 @@
+from functools import partial
+
 from PyQt6.QtGui import QPalette, QColor
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel
 
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 400
-FIELD_SIZE = 12
+WINDOW_WIDTH: int = 800
+WINDOW_HEIGHT: int = 400
+FIELD_SIZE: int = 12
 
 ROTATION_MAP = [
-    lambda x, y: (x, y),
-    lambda x, y: (y, x),
-    lambda x, y: (-x, -y),
-    lambda x, y: (-y, -x),
+    lambda x, y: [x, y],
+    lambda x, y: [y, x],
+    lambda x, y: [-x, -y],
+    lambda x, y: [-y, -x],
 ]
+
+SHIP_BUTTONS: list[str] = [
+    "<-",
+    "rotate left",
+    "rotate right",
+    "->",
+]
+
+PLACED_SHIPS: list[[int, [[int, int], [int, int, int]]]] = []
+USED_COORDINATES: list[[int, int]] = []
 
 
 class MainWindow(QMainWindow):
@@ -66,21 +78,6 @@ class GameLayout(QVBoxLayout):
         self.parent.layout.addLayout(self.layout)
 
 
-# hardcoded for testing "Ship"
-ship_uuid: int = 0
-ship_form: list[[int, int]] = [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]
-ship_coordinates: list[int, int, int] = [5, 5, 1]
-
-ships: list[[int, [[int, int]], [int, int, int]]] = \
-    [
-        # uuid, layout, root-coordinate
-        [0, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]], [5, 5, 1]],
-        [1, [[0, 0], [0, 1], [0, 2]], [2, 2, 0]],
-        [2, [[0, 0], [1, 0]], [9, 10, 2]],
-        [3, [[0, 0]], [7, 0, 3]]
-    ]
-
-
 class PlayerGridLayout(QGridLayout):
     def __init__(self, parent: GameLayout):
         super().__init__()
@@ -89,17 +86,9 @@ class PlayerGridLayout(QGridLayout):
         self.layout = QGridLayout()
 
         # children
-        self.ship_1 = Ship(self, ship_uuid, ship_form, ship_coordinates)
-        self.ship_2 = Ship(self, ships[1][0], ships[1][1], ships[1][2])
-        self.ship_3 = Ship(self, ships[2][0], ships[2][1], ships[2][2])
-        self.ship_4 = Ship(self, ships[3][0], ships[3][1], ships[3][2])
 
     def run(self):
         self.render_button_layout()
-        self.ship_1.run()
-        self.ship_2.run()
-        self.ship_3.run()
-        self.ship_4.run()
 
     def render_button_layout(self):
         self.layout.setSpacing(1)
@@ -109,7 +98,7 @@ class PlayerGridLayout(QGridLayout):
                 # button = QPushButton(f"{i, j}")
                 button = QPushButton()
                 button.setFixedSize(25, 25)
-                
+
                 self.buttons.append([[i, j], button])
                 self.layout.addWidget(button, i, j)
 
@@ -159,11 +148,12 @@ class EnemyGridLayout(QGridLayout):
     def __init__(self, parent: GameLayout):
         super().__init__()
         self.parent: GameLayout = parent
-        self.buttons: list[[int, int, object]] = []
+        self.buttons: list[[[int, int], object]] = []
         self.layout = QGridLayout()
 
     def run(self):
         self.render_button_layout()
+        self.connect_buttons()
 
     def render_button_layout(self):
         self.layout.setSpacing(1)
@@ -174,10 +164,23 @@ class EnemyGridLayout(QGridLayout):
                 button = QPushButton()
                 button.setFixedSize(25, 25)
 
-                self.buttons.append([i, j, button])
+                self.buttons.append([[i, j], button])
                 self.layout.addWidget(button, i, j)
 
         self.parent.layout.addLayout(self.layout)
+
+    def connect_buttons(self):
+        for ele in self.buttons:
+            ele[1].clicked.connect(partial(self.handle_clicked_button, ele[0], ele[1]))
+            print(ele)
+
+    def handle_clicked_button(self, coordinates: list[int, int], button: QPushButton):
+        # todo: here we have to send the coordinates to the server -> the server is gonna check, if the send
+        #  coordinates are in the other client's coordinates-array:
+        # todo: server returns bool "True" if clicked button-coordinates matches the other clients-coordinate - else
+        #  return bool "False"
+
+        pass
 
 
 class StatsLayout(QVBoxLayout):
