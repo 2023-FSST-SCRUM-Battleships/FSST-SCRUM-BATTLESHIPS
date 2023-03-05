@@ -69,7 +69,7 @@ print_board(my_board)
 # creating a list for the board-coordinates of the opponents board
 opponent_board = create_board(12)
 
-
+'''
 def ship_input():
     """
     This function gets the user input - which ship type a user wants to place
@@ -92,6 +92,7 @@ def coord_input():
     x, y, rotation = (int(bit) for bit in input_cell.split(" "))
     x, y = x - 1, y - 1
     return x, y, rotation
+'''
 
 
 def place_ship(ship_type: dict, x: int, y: int, rotation: int):

@@ -69,30 +69,68 @@ class Client:
         except IOError:
             return False, None, None
 
+    def coord_input(self):
+        """
+        This function gets the user input - where the ship should be placed and how
+        :param:
+        :return: x, y coordinate and rotation
+        """
+        input_cell = input("> ")
+        x, y, rotation = (int(bit) for bit in input_cell.split(" "))
+        x, y = x - 1, y - 1
+        return x, y, rotation
+
 
 if __name__ == "__main__":
     cl = Client()
     connected = cl.connect()
 
     while connected:
+        # receive message from the server
         server_msg = cl.receive()
-        client_input = int(input("> "))
-        if client_input == 0:
-            connected = False
-            break
+        print(f"[SERVER] {server_msg[2]}")
 
-        elif client_input == 2:
-            cl.send_to_server('user_instruction', client_input)
-            server_msg = cl.receive()
-            if server_msg[1] in ['ship_id_msg', 'invalid_shipID_msg']:
+        # check the type of message received
+        if server_msg[1] == 'game_instruction':
+            print(f"[SERVER] {server_msg[2]}")
+            client_input = int(input("> "))
+            cl.send_to_server('game_instruction', client_input)
+
+        elif server_msg[1] == 'ship_id_msg':
+            print(f"[SERVER] {server_msg[2]}")
+            ship_input = input("> ")
+            cl.send_to_server('ship_id_msg', ship_input)
+
+        elif server_msg[1] == 'invalid_shipID_msg':
+            print(f"[SERVER] {server_msg[2]}")
+            while server_msg[1] == 'invalid_shipID_msg':
+                print(f"[SERVER] {server_msg[2]}")
                 ship_input = input("> ")
                 cl.send_to_server('ship_id_msg', ship_input)
+                server_msg = cl.receive()
 
-            elif server_msg[1] in ['ship_coord_msg', 'invalid_coord_msg']:
-                coord_input = input("> ")
-                cl.send_to_server('ship_coord_msg', coord_input)
+        elif server_msg[1] == 'ship_coord_msg':
+            print(f"[SERVER] {server_msg[2]}")
+            coord = cl.coord_input()
+            cl.send_to_server('ship_coord_msg', coord)
 
-# print(f"[SERVER] {server_msg[2]}")
+        elif server_msg[1] == 'invalid_coord_msg':
+            print(f"[SERVER] {server_msg[2]}")
+            while server_msg[1] == 'invalid__msg':
+                print(f"[SERVER] {server_msg[2]}")
+                coord = cl.coord_input()
+                cl.send_to_server('ship_coord_msg', coord)
+                server_msg = cl.receive()
+
+        elif server_msg[1] == 'invalid_instruction':
+            print(f"[SERVER] {server_msg[2]}")
+            client_input = int(input("> "))
+            cl.send_to_server('game_instruction', client_input)
+
+        # if info_msg
+        else:
+            print(f"[SERVER] {server_msg[2]}")
+
 '''
 Game instructions:
 0 = EXIT
