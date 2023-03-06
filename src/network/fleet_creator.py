@@ -27,7 +27,7 @@ rotation_map = [
 # every ship in the grid will be shown with a different number
 ship_index = 0
 # the total number of ships available
-ship_count = 1
+# ship_count = 1
 # list that saves the coordinates of each hit as a tuple
 list_of_hits = []
 # list where the coordinates of each created ship (["form"]) are saved
@@ -64,7 +64,7 @@ def print_board(brd: list[list]):
 
 # creating a list for the coordinates of my board
 my_board = create_board(12)
-print_board(my_board)
+# print_board(my_board)
 
 # creating a list for the board-coordinates of the opponents board
 opponent_board = create_board(12)
@@ -105,7 +105,8 @@ def place_ship(ship_type: dict, x: int, y: int, rotation: int):
     ship_index += 1
     # list that saves each coordinate as a tuple in a list = [(y, x), (y, x)...]
     my_ship = []
-    for coord in ship_type["form"]:
+    ship_type = int(ship_type)
+    for coord in ship_types[ship_type]["form"]:
         relX, relY = (i for i in coord)
         relX, relY = rotation_map[rotation](relX, relY)
         # gives the name to each coordinate
@@ -115,14 +116,15 @@ def place_ship(ship_type: dict, x: int, y: int, rotation: int):
     my_fleet.append(my_ship)
 
 
-def check_ship(ship_type: dict):
+def check_ship(ship_type):
     """
     This function check if any ship of the chosen type is available
     :param: ship_type
     :return: bool
     """
-    if ship_type["count"] > 0:
-        ship_type["count"] -= 1
+    ship_type = int(ship_type)
+    if ship_types[ship_type]["count"] > 0:
+        ship_types[ship_type]["count"] -= 1
         return True
     else:
         print("You already used all ships od this type!")
@@ -138,19 +140,21 @@ def check_cell(ship_type: dict, x: int, y: int, rotation: int):
     """
     global my_board
     count = 0
-    for coord in ship_type["form"]:
+    ship_type = int(ship_type)
+    for coord in ship_types[ship_type]["form"]:
         relX, relY = (i for i in coord)
         relX, relY = rotation_map[rotation](relX, relY)
         if my_board[y + relY][x + relX] == ' ':
             count += 1
     # if all cells are free return True
-    if count == len(ship_type["form"]):
+    if count == len(ship_types[ship_type]["form"]):
         return True
     else:
         print("You already placed some ship here!")
         return False
 
 
+'''
 def creating_fleet():
     """
     This function creates the fleet and handles invalid input
@@ -176,6 +180,7 @@ def creating_fleet():
 # creating a fleet
 while ship_count > 0:
     creating_fleet()
+'''
 
 
 def get_ship_name(list_len: int):
@@ -238,7 +243,9 @@ def hit_ship():
             print("None ship is sunk! Continue to hit!")
 
 
+'''
 while hits > 0:
     hit_ship()
     print("OPPONENTS BOARD")
     print_board(opponent_board)
+'''

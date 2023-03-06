@@ -78,7 +78,7 @@ class Client:
         input_cell = input("> ")
         x, y, rotation = (int(bit) for bit in input_cell.split(" "))
         x, y = x - 1, y - 1
-        return x, y, rotation
+        return [x, y, rotation]
 
 
 if __name__ == "__main__":
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     while connected:
         # receive message from the server
         server_msg = cl.receive()
-        print(f"[SERVER] {server_msg[2]}")
+        # print(f"[SERVER] {server_msg[2]}")
 
         # check the type of message received
         if server_msg[1] == 'game_instruction':
