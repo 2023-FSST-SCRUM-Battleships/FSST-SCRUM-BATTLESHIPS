@@ -29,93 +29,48 @@ class Server:
         except IOError:
             return False
 
-    def receive(self, conn) -> tuple[bool, any, any]:
+    def receive(self) -> tuple[bool, any, any]:
         """
-        receives a packet from client
+        receives a packet from server
         :return:
         """
 
         try:
             # accu = collects all the bytes aka "buffer" -> accu is for receiving more than the recv size
-            accu = bytearray()
+            accu = ""
 
+            curly_braces_count = 0
+            in_string = False
             while True:
-                data = conn.recv(512)
-                print(data)
-                if not data:
+                char = self.client.recv(1).decode(FORMAT)
+                if not char:
                     # end of sent data / no bytes received
                     break
 
-                for byte in data:
-                    accu.append(byte)
+                accu += char
 
-                if len(data) < 512:
-                    # end of sent data but not receive size
-                    break
+                if char == '{' and not in_string:  # open braces
+                    curly_braces_count += 1
+                elif char == '}' and not in_string:  # close braces
+                    curly_braces_count -= 1
+                    if curly_braces_count == 0:  # last brace closed, packet done
+                        break
+                elif char == '"' or char == "'":
+                    in_string = not in_string
 
-            _type, data = decode_packet(accu.decode(FORMAT))
+            _type, data = decode_packet(accu)
             return True, _type, data
 
-        except IOError as Err:
-            print(Err)
+        except IOError:
             return False, None, None
 
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected.")
         connected = True
         while connected:
-            self.send_to_client(conn, "info_msg", "Welcome to the Battleship game!\n"
-                                                  "You need to create your fleet!\n"
-                                                  "Available ships: Carrier 1x, Submarine 2x and Destroyer 3x\n"
-                                                  "Game instructions: \n"
-                                                  "3 = EXIT\n"
-                                                  "4 = CREATE FLEET\n"
-                                                  "5 = HIT"
-                                )
-
-            while True:
-                self.send_to_client(conn, 'game_instruction', 'Input instruction: ')
-                client_msg = self.receive(conn)
-
-                # if message received
-                if client_msg[0]:
-                    # checks for the type of input
-                    if client_msg[1] == 'game_instruction':
-                        # if input is EXIT
-                        if client_msg[2] == 3:
-                            connected = False
-                            break
-
-                        # if user wants to create fleet
-                        elif client_msg[2] == 4:
-                            # until the user places all 6 boats
-                            while ship_count > 0:
-                                self.send_to_client(conn, 'ship_id_msg', 'Input ship: ')
-                                ship_type = self.receive(conn)
-
-                                # in handle_message catching invalid input - returns True/False
-                                while not handle_message(ship_type[1:]):
-                                    self.send_to_client(conn, 'invalid_shipID_msg', 'Invalid input! Please try again:')
-                                    ship_type = self.receive(conn)
-                                    handle_message(ship_type[1:])
-                                else:
-                                    self.send_to_client(conn, 'info_msg', 'Message received')
-                                    handle_message(ship_type[1:])
-
-                                self.send_to_client(conn, 'ship_coord_msg', 'Please enter the coordinates & rotation: ')
-                                coord = self.receive(conn)
-                                while not handle_message(coord[1:]):
-                                    self.send_to_client(conn, 'invalid_coord_msg', 'Invalid input! Please try again: ')
-                                    coord = self.receive(conn)
-                                    handle_message(coord[1:])
-
-                                self.send_to_client(conn, 'board_status', my_board)
-
-                        '''if ship_type[2] == 3:
-                            break
-
-                        elif client_msg[2] == 5:
-                            pass'''
+            client_msg = self.receive()
+            print(f'["CLIENT"] {client_msg} ')
+            self.send_to_client(conn, 'info_msg', 'Message received')
 
         conn.close()
 

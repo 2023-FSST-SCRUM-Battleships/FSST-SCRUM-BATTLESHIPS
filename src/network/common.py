@@ -3,8 +3,8 @@ class JSON:
     import Python-commands as JSON Javascript-commands
     """
 
-    from json import dumps as stringify
-    from json import loads as parse
+    from json import dumps
+    from json import loads
 
 
 def encode_packet(_type: str, data: any or None = None) -> str:
@@ -14,8 +14,8 @@ def encode_packet(_type: str, data: any or None = None) -> str:
     :param data:
     :return:
     """
-
-    return JSON.stringify({"_type": _type, "data": data})
+    packet = JSON.dumps({"_type": _type, "data": data})
+    return packet
 
 
 def decode_packet(data: str) -> tuple:
@@ -25,5 +25,5 @@ def decode_packet(data: str) -> tuple:
     :return:
     """
 
-    temp = JSON.parse(data)
+    temp = JSON.loads(data)
     return temp["_type"], temp["data"]
