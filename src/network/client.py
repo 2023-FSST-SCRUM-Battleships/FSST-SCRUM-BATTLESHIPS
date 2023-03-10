@@ -1,5 +1,6 @@
 import socket
-from src.network.common import *
+
+from network.common import *
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566

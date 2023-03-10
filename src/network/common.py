@@ -25,5 +25,5 @@ def decode_packet(data: str) -> tuple:
     :return:
     """
 
-    temp = JSON.parse(data)
+    temp: dict = JSON.parse(data)
     return temp["_type"], temp["data"]
