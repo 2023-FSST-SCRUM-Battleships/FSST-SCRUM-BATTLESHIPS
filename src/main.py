@@ -28,11 +28,11 @@ def gui_window_handler() -> None:
 
 
 def main():
-    #gui_window_handler()
-    #print(Client().connect())
-    db = DatabaseHelper()
+    # gui_window_handler()
+    # print(Client().connect())
+    """db = DatabaseHelper()
     db.update_schema()
-    db.connect()
+    db.connect()"""
     # from src.cli.fleet_creator import board
     # [print(ele) for ele in board]
     # Ship(ship_uuid, ship_form, ship_coordinates).run()

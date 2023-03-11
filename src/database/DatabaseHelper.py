@@ -34,10 +34,7 @@ Example:
     db.close()
 """
 import pymysql
-
 from peewee import *
-
-import database
 
 _host = "localhost"
 _user = "battleships"
@@ -69,7 +66,7 @@ class BaseEntity(Model):
 
 class DatabaseHelper(object):
     def connect(self):
-        conn = pymysql.connect(host=_host, user=_user, password = _password)
+        conn = pymysql.connect(host=_host, user=_user, password=_password)
         conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS `{_database}`')
         conn.close()
         _db.connect(True)

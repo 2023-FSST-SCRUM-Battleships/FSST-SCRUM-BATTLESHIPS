@@ -28,12 +28,17 @@ SHIPS: list[[int, [[int, int]]]] = \
         [0, [[0, 0], [1, 0], [2, 0]]],
         [1, [[0, 0], [0, 1], [0, 2]]],
         [2, [[0, 0], [1, 0]]],
-        [3, [[0, 0]]],
-        [4, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]]
+        [3, [[0, 0], [1, 0]]],
+        [4, [[0, 0], [1, 0]]],
+        [5, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]],
+        [6, [[0, 0], [1, 0], [2, 0], [1, 1], [2, 1], [3, 1]]]
     ]
 
 PLACED_SHIPS: list[[int, [[int, int], [int, int, int]]]] = []
 USED_COORDINATES: list[[int, int]] = []
+
+
+# [[[1,1], [1,2], [1,3]], [[2,2], [2,3], [2,4]]]
 
 
 class MainWindow(QMainWindow):
@@ -355,8 +360,8 @@ class CreateShipPreview(QGridLayout):
 
                         finish_alert.exec()
 
-                        # todo: here we should send "PLACED_SHIPS" / "USED_COORDINATES" to the server (probably "USED_COORDINATES")
-
+                        # todo: here we should send "USED_COORDINATES" to the server
+                        cl.send_to_server('used_coord', USED_COORDINATES)
                         self.parent.parent.parent.close()
 
                 else:

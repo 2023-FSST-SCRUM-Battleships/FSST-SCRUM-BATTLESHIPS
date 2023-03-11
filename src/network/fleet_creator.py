@@ -173,13 +173,13 @@ def creating_fleet():
         print_board(my_board)
     except ValueError:
         print("Enter a valid input!")
-    except SystemExit:
-        return False
 
 
 # creating a fleet
 while ship_count > 0:
     creating_fleet()
+
+print(my_fleet)
 
 
 def get_ship_name(list_len: int):

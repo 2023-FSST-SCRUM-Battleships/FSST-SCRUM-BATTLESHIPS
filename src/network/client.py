@@ -74,30 +74,10 @@ class Client:
 if __name__ == "__main__":
     cl = Client()
     connected = cl.connect()
-    EXIT = False
     while connected:
         # receive message from the server
         server_msg = cl.receive()
         print(f"[SERVER] {server_msg[2]}")
-        while not EXIT:
-            game_instruction = int(input("Instruction: "))
-            if game_instruction == 0:
-                connected = False
-                break
-
-            elif game_instruction == 1:
-                # creating a fleet
-                while ship_count > 0:
-                    if not creating_fleet():
-                        EXIT = True
-                        cl.client.close()
-                        connected = False
-                        break
-                    else:
-                        cl.send_to_server('current_board', my_board)
-
-            elif game_instruction == 2:
-                pass
 
 '''
 Game instructions:
