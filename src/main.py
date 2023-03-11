@@ -2,8 +2,7 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
-from database import *
-from gui.place_ship_ui import MainWindow
+from gui.matchmaking_gui import Matchmaking
 
 # from network.common import encode_packet, decode_packet
 # from src.network.client import Client
@@ -17,7 +16,7 @@ ship_coordinates = [5, 5, 0]
 def gui_window_handler() -> None:
     app = QApplication(sys.argv)
 
-    main_window = MainWindow()
+    main_window = Matchmaking()
     main_window.show()
     main_window.run()
 
@@ -28,11 +27,11 @@ def gui_window_handler() -> None:
 
 
 def main():
-    #gui_window_handler()
-    #print(Client().connect())
-    db = DatabaseHelper()
-    db.update_schema()
-    db.connect()
+    # gui_window_handler()
+    # print(Client().connect())
+    # db = DatabaseHelper()
+    # db.update_schema()
+    # db.connect()
     # from src.cli.fleet_creator import board
     # [print(ele) for ele in board]
     # Ship(ship_uuid, ship_form, ship_coordinates).run()
