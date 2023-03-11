@@ -29,6 +29,42 @@ class Server:
         except IOError:
             return False
 
+    def receive_from_connection(self, client):
+        try:
+            # accu = collects all the bytes aka "buffer" -> accu is for receiving more than the recv size
+            accu = ""
+
+            curly_braces_count = 0
+            string_char = None
+            last_char = None
+            while True:
+                char = client.recv(1).decode(FORMAT)
+                if not char:
+                    # end of sent data / no bytes received
+                    break
+
+                accu += char
+
+                if char == '{' and not string_char:  # open braces
+                    curly_braces_count += 1
+                elif char == '}' and not string_char:  # close braces
+                    curly_braces_count -= 1
+                    if curly_braces_count == 0:  # last brace closed, packet done
+                        break
+                elif char == '"' or char == "'":
+                    if not last_char == "\\":
+                        if string_char is None:
+                            string_char = char
+                        else:
+                            string_char = None
+                last_char = char
+
+            _type, data = decode_packet(accu)
+            return True, _type, data
+
+        except IOError:
+            return False, None, None
+
     def receive(self) -> tuple[bool, any, any]:
         """
         receives a packet from server
@@ -43,37 +79,11 @@ class Server:
             # TODO check exceptional (probably disconnected) sockets
             # alle die exceptional sind aus der connections rausschmeißen
             client = readable[0]
-
-            # accu = collects all the bytes aka "buffer" -> accu is for receiving more than the recv size
-            accu = ""
-
-            curly_braces_count = 0
-            in_string = False
-            while True:
-                char = client.recv(1).decode(FORMAT)
-                if not char:
-                    # end of sent data / no bytes received
-                    break
-
-                accu += char
-
-                if char == '{' and not in_string:  # open braces
-                    curly_braces_count += 1
-                elif char == '}' and not in_string:  # close braces
-                    curly_braces_count -= 1
-                    if curly_braces_count == 0:  # last brace closed, packet done
-                        break
-                elif char == '"' or char == "'":
-                    in_string = not in_string
-
-            _type, data = decode_packet(accu)
-            return True, _type, data
-
+            return self.receive_from_connection(client)
         except IOError:
             return False, None, None
 
-    def handle_client(self, conn1, conn2, addr):
-        print(f"[NEW CONNECTION] {addr} connected.")
+    def handle_game(self, conn1, conn2):
         connected = True
         while connected:
             # var für die conn die dran ist
@@ -88,33 +98,83 @@ class Server:
 
         conn.close()
 
+    def handle_login(self, con):
+        print(f"[NEW CONNECTION] {addr} connected.")
+        connected = True
+        while connected:
+            client_msg = self.receive()
+            if client_msg[1] == 'login_msg':
+                username, password = client_msg[2]
+                user = AuthHelper.check_credentials(username, password)
+                self.send_to_client(con, 'login_msg', user is not None)
+                if user:
+                    return user
+
+            if client_msg[1] == 'register_msg':
+                username, password = client_msg[2]
+                user = AuthHelper.create_account(username, password)
+                self.send_to_client(con, 'register_msg', user is not None)
+                if user:
+                    return user
+
+
+# show stats in Lobby
+def handle_lobby(server):
+    selected_player = {}
+    while True:
+        readable, writable, exceptional = select.select(server.connections.values(), [], server.connections.values())
+        con = readable[0]
+        username = [key for key in server.connections if server.connections[key] == con][0]
+        received, msg_type, msg = server.receive_from_connection(con)
+
+        if msg_type == 'disconnect_msg':
+            server.connections.pop(username)
+            # broadcast to the clients that this player disconnected
+            for client in server.connections.values():
+                server.send_to_client(client, 'player_disconnect', username)
+            for player in selected_player:
+                selected_player[player].remove(username)
+            selected_player.pop(username)
+
+        if msg_type == 'play_with_msg':
+            if username not in selected_player:
+                selected_player[username] = []
+            if str(msg[1]) == 'True':  # because we don't know if it is bool or str
+                selected_player[username].append(msg[0])
+            else:
+                if msg[0] in selected_player[username]:
+                    selected_player[username].remove(msg[0])
+
+            if msg[0] not in selected_player:
+                selected_player[msg[0]] = []
+            if username in selected_player[msg[0]] and msg[0] in selected_player[username]:
+                # target(msg[0]) player selected current player
+                con2 = server.connections[msg[0]]
+                thread = threading.Thread(target=server.handle_game, args=(con, con2))
+                thread.start()
+                # TODO: mark players as not in loby
+                # print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+
 
 if __name__ == "__main__":
     serv = Server()
     serv.server.bind(ADDR)
     serv.server.listen()
     print(f"[LISTENING] Server is listening on {ADDR}")
-    # TODO: Login
 
     # Lobby
     threading.Thread(target=handle_lobby, args=(serv,)).start()
 
-
-    # in Lobby stats anzeigen
-
-    def handle_lobby(server):
-        pass
-
-
-    # listen to players, who they want to play with ["kilian", "Matze"]
-    # matchmaking - access auf connection[]
-    # thread = threading.Thread(target=serv.handle_game, args=(conn1, conn2, addr))
-    # thread.start()
-    # print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
-
     while True:
         conn, addr = serv.server.accept()
-        serv.connections.append(conn)
+        user = serv.handle_login(conn)
+        if not user:
+            conn.close()
+            continue
 
-# people = Account.select()
-# TODO: broadcast the list of accounts to client
+        # save the username and the connection in the dict
+        serv.connections[user.username] = conn
+        # TODO: send the list of accounts to client when he connects
+        # TODO: when new client connects, send the new list of conn to all clients
+
+

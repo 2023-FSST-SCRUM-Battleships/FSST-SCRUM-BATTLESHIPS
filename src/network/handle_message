@@ -1,0 +1,36 @@
+-server schickt den beiden Spielern creating_fleet()
+-wenn sie fertig sind, beginnt schießen
+-zuerst einen spieler fragen, auf welches Feld er schießt
+-dann das bearbeiten
+-dann den anderen
+
+ # print(f"[{addr}] {msg[2]}")
+
+-in server und client werd i einf handle_message aufrufen und message['_type'] und message ['data'] übergeben
+-handle_message is ein großes IF-Statement und schaut welche funktion er anhand von der '_type' aus der fleet_creator aufrufen soll
+
+- user input als packet vom server an client schicken und die antwort dann als argument für die funktion übergeben(am server läuft die spiellogik)
+
+
+s to c:
+Welcome to the game
+You are now going to create your fleet
+server.send (Please enter the ship)
+ship_type = server.receive()
+.
+.
+.
+server.send (Please enter the coordinates and rotation)
+x,y,rotation = server.receive()
+place_ship()
+server.send(my_board)
+
+Hit
+server.send (Please enter the coordinates where to hit)
+x,y = server.receive()
+...
+server.send(You missed/hit it)
+server.send(opponent_board)
+
+... are for the handle_message()
+return True oder False bei handle_message()

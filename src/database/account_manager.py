@@ -11,26 +11,18 @@ class AuthHelper(object):
 
     def check_credentials(self, name, password):
         # name, password comes from GUI
-        try:
-            user = Account.get_or_none(name=name, password=password)
-            # TODO: pop up message: Successful login in or simply game start
-        except Account.DoesNotExist:
-            # TODO: pop up message: Sorry, we couldn't find an account with that name and password
-            self.create_account(name, password)
+        return Account.get_or_none(username=name, password=password)
 
     def create_account(self, name, password):
-
         with self.db.transaction():
-            user = Account.get_or_none(name=name)
+            user = Account.get_or_none(username=name)
+            # username is already taken
             if user:
-                return False
-            # TODO: GUI message -> Sorry, that username is already taken
-            # TODO: repeat sign up in GUI and call create_account function
-            # self.create_account(username, pass)
-
-            user = Account.create(name=name, password=password)
-            user.save()
-            # TODO: GUI message -> Account created successfully!
+                return None
+            else:
+                user = Account.create(username=name, password=password)
+                user.save()
+                return user
 
     def close(self):
         self.db.close()
