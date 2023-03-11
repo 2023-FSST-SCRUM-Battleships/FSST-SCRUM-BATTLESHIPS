@@ -3,7 +3,7 @@ import sys
 from PyQt6.QtWidgets import QApplication
 
 # from gui.main_gui import MainWindow, PlayerGridLayout, Ship
-from gui.place_ship_ui import MainWindow
+from gui.matchmaking_gui import Matchmaking
 
 # from network.common import encode_packet, decode_packet
 # from src.network.client import Client
@@ -17,7 +17,7 @@ ship_coordinates = [5, 5, 0]
 def gui_window_handler() -> None:
     app = QApplication(sys.argv)
 
-    main_window = MainWindow()
+    main_window = Matchmaking()
     main_window.show()
     main_window.run()
 

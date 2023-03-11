@@ -42,8 +42,8 @@ class MainWindow(QMainWindow):
         self.layout = QHBoxLayout()
 
         # children
-        self.game_layout = GameLayout(self)
-        self.place_ship_ui = PlaceShipUI(self)
+        self.game_layout: GameLayout = GameLayout(self)
+        self.place_ship_ui: PlaceShipUI = PlaceShipUI(self)
 
     def ui(self):
         self.setWindowTitle("Titanic who-ooo")
